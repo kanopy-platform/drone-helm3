@@ -51,9 +51,9 @@ type Config struct {
 	AtomicUpgrade      bool     `split_words:"true"`                 // Pass --atomic to `helm upgrade`
 	CleanupOnFail      bool     `envconfig:"cleanup_failed_upgrade"` // Pass --cleanup-on-fail to `helm upgrade`
 	LintStrictly       bool     `split_words:"true"`                 // Pass --strict to `helm lint`
-	ConvertV2Releases  bool     `split_words:"true" default:"true"`  // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
-	DeleteV2Releases   bool     `split_words:"true" default:"true"`  // Pass --delete-v2-releases option for 2to3 convert command
-	ReleaseVersionsMax int      `split_words:"true" default:"50"`    // Pass --release-versions-max option for 2to3 convert command
+	ConvertV2Releases  bool     `split_words:"true"`                 // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
+	DeleteV2Releases   bool     `split_words:"true"`                 // Pass --delete-v2-releases option for 2to3 convert command
+	ReleaseVersionsMax int      `split_words:"true"`                 // Pass --release-versions-max option for 2to3 convert command
 	TillerLabel        string   `split_words:"true" default:"OWNER=TILLER"` // Tiller label selector (--label) for 2to3 convert command
 
 
