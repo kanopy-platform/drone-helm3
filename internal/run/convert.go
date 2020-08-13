@@ -43,6 +43,10 @@ func NewConvert(cfg env.Config, tillerNS string, kubeConfig string) *Convert {
 	}
 }
 
+// Execute runs the `2to3 convert` command from Prepare
+// it detects if a conversion is needed and if not it will return no error
+// if a conversion is required then any returned error is related to a step
+// in the conversion process
 func (c *Convert) Execute() error {
 
 	clientSet, err := clientSetFromKubeConfig(c.kubeConfig)
@@ -50,21 +54,28 @@ func (c *Convert) Execute() error {
 		return err
 	}
 
+	// If Tiller is not present, utils.ListReleasesWithKubeConfig will panic
+	if !isTillerPresent(clientSet, "name=tiller,app=helm") {
+		log.Println("There is no Tiller Deployment running")
+		return nil
+	}
+
 	// Check for existence of v2 Release (only if Tiller is running)
 	var v2ReleaseFound bool
-	// If Tiller is not present, utils.ListReleasesWithKubeConfig will panic
-	if isTillerPresent(clientSet, "name=tiller,app=helm") {
-		listOptions := utils.ListOptions{
-			ReleaseName: c.release,
-			TillerNamespace: c.tillerNS,
-			TillerLabel: c.label,
-		}
 
-		v2Releases, _ := utils.ListReleasesWithKubeConfig(listOptions, c.kubeConfig, c.kubeContext)
-		if len(v2Releases) > 0 {
-			log.Printf("A v2 Release of %s was found", c.release)
-			v2ReleaseFound = true
-		}
+	listOptions := utils.ListOptions{
+		ReleaseName: c.release,
+		TillerNamespace: c.tillerNS,
+		TillerLabel: c.label,
+	}
+
+	v2Releases, _ := utils.ListReleasesWithKubeConfig(listOptions, c.kubeConfig, c.kubeContext)
+	if len(v2Releases) > 0 {
+		log.Printf("A v2 Release of %s was found", c.release)
+		v2ReleaseFound = true
+	} else {
+		log.Printf("There is no v2 Release of %s to migrate", c.release)
+		return nil
 	}
 
 	// Check for existence of v3 Release
@@ -92,11 +103,7 @@ func (c *Convert) Execute() error {
 		return fmt.Errorf("Release %s, has entries both in v2 and v3 format", c.release)
 	}
 
-	if v2ReleaseFound && !v3ReleaseFound {
-		return c.cmd.Run()
-	}
-
-	return nil
+	return c.cmd.Run()
 }
 
 // Prepare builds the 2to3 convert command
@@ -112,7 +119,6 @@ func (c *Convert) Execute() error {
 // -t, --tiller-ns string           namespace of Tiller (default "kube-system")
 //     --tiller-out-cluster         when  Tiller is not running in the cluster e.g. Tillerless
 func (c *Convert) Prepare() error {
-
 
 	args := c.globalFlags()
 	args = append(args, "2to3", "convert")
