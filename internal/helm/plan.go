@@ -93,6 +93,11 @@ func (p *Plan) Execute() error {
 var upgrade = func(cfg env.Config) []Step {
 	var steps []Step
 	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+
+	if cfg.ConvertV2Releases {
+		steps = append(steps, run.NewConvert(cfg, cfg.Namespace, kubeConfigFile))
+	}
+
 	for _, repo := range cfg.AddRepos {
 		steps = append(steps, run.NewAddRepo(cfg, repo))
 	}

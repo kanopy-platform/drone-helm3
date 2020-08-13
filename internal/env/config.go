@@ -38,6 +38,7 @@ type Config struct {
 	Certificate        string   `envconfig:"kube_certificate"`       // The Kubernetes cluster CA's self-signed certificate (must be base64-encoded)
 	APIServer          string   `envconfig:"kube_api_server"`        // The Kubernetes cluster's API endpoint
 	ServiceAccount     string   `envconfig:"kube_service_account"`   // Account to use for connecting to the Kubernetes cluster
+	Context            string   `envconfig:"kube_context"`           // The KUBECONFIG context to use
 	ChartVersion       string   `split_words:"true"`                 // Specific chart version to use in `helm upgrade`
 	DryRun             bool     `split_words:"true"`                 // Pass --dry-run to applicable helm commands
 	Wait               bool     `envconfig:"wait_for_upgrade"`       // Pass --wait to applicable helm commands
@@ -50,6 +51,11 @@ type Config struct {
 	AtomicUpgrade      bool     `split_words:"true"`                 // Pass --atomic to `helm upgrade`
 	CleanupOnFail      bool     `envconfig:"cleanup_failed_upgrade"` // Pass --cleanup-on-fail to `helm upgrade`
 	LintStrictly       bool     `split_words:"true"`                 // Pass --strict to `helm lint`
+	ConvertV2Releases  bool     `split_words:"true" default:"true"`  // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
+	DeleteV2Releases   bool     `split_words:"true" default:"true"`  // Pass --delete-v2-releases option for 2to3 convert command
+	ReleaseVersionsMax int      `split_words:"true" default:"50"`    // Pass --release-versions-max option for 2to3 convert command
+	TillerLabel        string   `split_words:"true" default:"OWNER=TILLER"` // Tiller label selector (--label) for 2to3 convert command
+
 
 	Stdout io.Writer `ignored:"true"`
 	Stderr io.Writer `ignored:"true"`
