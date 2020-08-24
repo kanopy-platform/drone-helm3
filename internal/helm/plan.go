@@ -95,7 +95,8 @@ var upgrade = func(cfg env.Config) []Step {
 	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
 
 	if cfg.ConvertV2Releases {
-		steps = append(steps, run.NewConvert(cfg, cfg.Namespace, kubeConfigFile))
+		// The "helm" context is coming from the template
+		steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
 	}
 
 	for _, repo := range cfg.AddRepos {

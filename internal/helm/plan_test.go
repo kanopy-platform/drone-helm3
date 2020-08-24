@@ -143,6 +143,17 @@ func (suite *PlanTestSuite) TestUpgradeWithAddRepos() {
 	suite.IsType(&run.AddRepo{}, steps[1])
 }
 
+func (suite *PlanTestSuite) TestUpgradeWithConvert() {
+	cfg := env.Config{
+		ConvertV2Releases: true,
+	}
+	steps := upgrade(cfg)
+	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
+	suite.IsType(&run.InitKube{}, steps[0])
+	suite.IsType(&run.Convert{}, steps[1])
+	suite.IsType(&run.Upgrade{}, steps[2])
+}
+
 func (suite *PlanTestSuite) TestUninstall() {
 	steps := uninstall(env.Config{})
 	suite.Require().Equal(2, len(steps), "uninstall should return 2 steps")
