@@ -2,53 +2,40 @@ package run
 
 import (
 	"testing"
+	"io/ioutil"
 
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/suite"
+	kubefake "helm.sh/helm/v3/pkg/kube/fake"
+	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chartutil"
+	"helm.sh/helm/v3/pkg/storage"
+	"helm.sh/helm/v3/pkg/release"
+	"helm.sh/helm/v3/pkg/storage/driver"
 
-	"github.com/pelotech/drone-helm3/internal/env"
+	"github.com/stretchr/testify/assert"
 )
 
-type ConvertTestSuite struct {
-	suite.Suite
-	ctrl            *gomock.Controller
-	mockCmd         *Mockcmd
-	originalCommand func(string, ...string) cmd
-}
-
-func (suite *ConvertTestSuite) BeforeTest(_, _ string) {
-	suite.ctrl = gomock.NewController(suite.T())
-	suite.mockCmd = NewMockcmd(suite.ctrl)
-
-	suite.originalCommand = command
-	command = func(path string, args ...string) cmd { return suite.mockCmd }
-}
-
-func (suite *ConvertTestSuite) AfterTest(_, _ string) {
-	command = suite.originalCommand
-}
-
-func TestConvertTestSuite(t *testing.T) {
-	suite.Run(t, new(ConvertTestSuite))
-}
-
-func (suite *ConvertTestSuite) TestNewConvert() {
-	cfg := env.Config{
-		DryRun:        true,
-		Release:       "myapp",
-		Context:       "helm",
-		DeleteV2Releases: true,
-		TillerLabel: "OWNER=TILLER",
-		ReleaseVersionsMax: 10,
+func mockActions(t *testing.T) *action.Configuration {
+	a := &action.Configuration{}
+	a.Releases = storage.Init(driver.NewMemory())
+	a.KubeClient = &kubefake.FailingKubeClient{PrintingKubeClient: kubefake.PrintingKubeClient{Out: ioutil.Discard}}
+	a.Capabilities = chartutil.DefaultCapabilities
+	a.Log = func(format string, v ...interface{}) {
+		t.Logf(format, v...)
 	}
 
-	c := NewConvert(cfg, "default", "/root/.kube/config")
-	suite.Equal(cfg.Release, c.release)
-	suite.Equal(cfg.ReleaseVersionsMax, c.releaseVersionsMax)
-	suite.Equal(cfg.DeleteV2Releases, c.deleteV2Releases)
-	suite.Equal("default", c.tillerNS)
-	suite.Equal("/root/.kube/config", c.kubeConfig)
-	suite.Equal(cfg.Context, c.kubeContext)
-	suite.Equal(true, c.dryRun)
-	suite.NotNil(c.config)
+	return a
+}
+
+func TestV3ReleaseFound(t *testing.T) {
+
+	cfg := mockActions(t)
+
+	opts := &release.MockReleaseOptions{
+		Name: "myapp",
+	}
+
+	cfg.Releases.Create(release.Mock(opts))
+
+	assert.True(t, v3ReleaseFound("myapp", cfg))
+	assert.False(t, v3ReleaseFound("doesnt_exists", cfg))
 }
