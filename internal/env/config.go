@@ -22,40 +22,40 @@ var (
 // not have the `PLUGIN_` prefix.
 type Config struct {
 	// Configuration for drone-helm itself
-	Command            string   `envconfig:"mode"`                   // Helm command to run
-	DroneEvent         string   `envconfig:"drone_build_event"`      // Drone event that invoked this plugin.
-	UpdateDependencies bool     `split_words:"true"`                 // [Deprecated] Call `helm dependency update` before the main command (deprecated, use dependencies_action: update instead)
-	DependenciesAction string   `split_words:"true"`                 // Call `helm dependency build` or `helm dependency update` before the main command
-	AddRepos           []string `split_words:"true"`                 // Call `helm repo add` before the main command
-	RepoCertificate    string   `envconfig:"repo_certificate"`       // The Helm chart repository's self-signed certificate (must be base64-encoded)
-	RepoCACertificate  string   `envconfig:"repo_ca_certificate"`    // The Helm chart repository CA's self-signed certificate (must be base64-encoded)
-	Debug              bool     ``                                   // Generate debug output and pass --debug to all helm commands
-	Values             string   ``                                   // Argument to pass to --set in applicable helm commands
-	StringValues       string   `split_words:"true"`                 // Argument to pass to --set-string in applicable helm commands
-	ValuesFiles        []string `split_words:"true"`                 // Arguments to pass to --values in applicable helm commands
-	Namespace          string   ``                                   // Kubernetes namespace for all helm commands
-	KubeToken          string   `split_words:"true"`                 // Kubernetes authentication token to put in .kube/config
-	SkipTLSVerify      bool     `envconfig:"skip_tls_verify"`        // Put insecure-skip-tls-verify in .kube/config
-	Certificate        string   `envconfig:"kube_certificate"`       // The Kubernetes cluster CA's self-signed certificate (must be base64-encoded)
-	APIServer          string   `envconfig:"kube_api_server"`        // The Kubernetes cluster's API endpoint
-	ServiceAccount     string   `envconfig:"kube_service_account"`   // Account to use for connecting to the Kubernetes cluster
-	ChartVersion       string   `split_words:"true"`                 // Specific chart version to use in `helm upgrade`
-	DryRun             bool     `split_words:"true"`                 // Pass --dry-run to applicable helm commands
-	Wait               bool     `envconfig:"wait_for_upgrade"`       // Pass --wait to applicable helm commands
-	ReuseValues        bool     `split_words:"true"`                 // Pass --reuse-values to `helm upgrade`
-	KeepHistory        bool     `split_words:"true"`                 // Pass --keep-history to `helm uninstall`
-	Timeout            string   ``                                   // Argument to pass to --timeout in applicable helm commands
-	Chart              string   ``                                   // Chart argument to use in applicable helm commands
-	Release            string   ``                                   // Release argument to use in applicable helm commands
-	Force              bool     `envconfig:"force_upgrade"`          // Pass --force to applicable helm commands
-	AtomicUpgrade      bool     `split_words:"true"`                 // Pass --atomic to `helm upgrade`
-	CleanupOnFail      bool     `envconfig:"cleanup_failed_upgrade"` // Pass --cleanup-on-fail to `helm upgrade`
-	LintStrictly       bool     `split_words:"true"`                 // Pass --strict to `helm lint`
-	ConvertV2Releases  bool     `split_words:"true"`                 // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
-	DeleteV2Releases   bool     `split_words:"true"`                 // Pass --delete-v2-releases option for 2to3 convert command
-	ReleaseVersionsMax int      `split_words:"true"`                 // Pass --release-versions-max option for 2to3 convert command
-	TillerNS           string   `envconfig:"tiller_ns"`              // Tiller namespace (--tiller-ns) for 2to3 convert command
-	TillerLabel        string   `split_words:"true"`                 // Tiller label selector (--label) for 2to3 convert command
+	Command             string   `envconfig:"mode"`                   // Helm command to run
+	DroneEvent          string   `envconfig:"drone_build_event"`      // Drone event that invoked this plugin.
+	UpdateDependencies  bool     `split_words:"true"`                 // [Deprecated] Call `helm dependency update` before the main command (deprecated, use dependencies_action: update instead)
+	DependenciesAction  string   `split_words:"true"`                 // Call `helm dependency build` or `helm dependency update` before the main command
+	AddRepos            []string `split_words:"true"`                 // Call `helm repo add` before the main command
+	RepoCertificate     string   `envconfig:"repo_certificate"`       // The Helm chart repository's self-signed certificate (must be base64-encoded)
+	RepoCACertificate   string   `envconfig:"repo_ca_certificate"`    // The Helm chart repository CA's self-signed certificate (must be base64-encoded)
+	Debug               bool     ``                                   // Generate debug output and pass --debug to all helm commands
+	Values              string   ``                                   // Argument to pass to --set in applicable helm commands
+	StringValues        string   `split_words:"true"`                 // Argument to pass to --set-string in applicable helm commands
+	ValuesFiles         []string `split_words:"true"`                 // Arguments to pass to --values in applicable helm commands
+	Namespace           string   ``                                   // Kubernetes namespace for all helm commands
+	KubeToken           string   `split_words:"true"`                 // Kubernetes authentication token to put in .kube/config
+	SkipTLSVerify       bool     `envconfig:"skip_tls_verify"`        // Put insecure-skip-tls-verify in .kube/config
+	Certificate         string   `envconfig:"kube_certificate"`       // The Kubernetes cluster CA's self-signed certificate (must be base64-encoded)
+	APIServer           string   `envconfig:"kube_api_server"`        // The Kubernetes cluster's API endpoint
+	ServiceAccount      string   `envconfig:"kube_service_account"`   // Account to use for connecting to the Kubernetes cluster
+	ChartVersion        string   `split_words:"true"`                 // Specific chart version to use in `helm upgrade`
+	DryRun              bool     `split_words:"true"`                 // Pass --dry-run to applicable helm commands
+	Wait                bool     `envconfig:"wait_for_upgrade"`       // Pass --wait to applicable helm commands
+	ReuseValues         bool     `split_words:"true"`                 // Pass --reuse-values to `helm upgrade`
+	KeepHistory         bool     `split_words:"true"`                 // Pass --keep-history to `helm uninstall`
+	Timeout             string   ``                                   // Argument to pass to --timeout in applicable helm commands
+	Chart               string   ``                                   // Chart argument to use in applicable helm commands
+	Release             string   ``                                   // Release argument to use in applicable helm commands
+	Force               bool     `envconfig:"force_upgrade"`          // Pass --force to applicable helm commands
+	AtomicUpgrade       bool     `split_words:"true"`                 // Pass --atomic to `helm upgrade`
+	CleanupOnFail       bool     `envconfig:"cleanup_failed_upgrade"` // Pass --cleanup-on-fail to `helm upgrade`
+	LintStrictly        bool     `split_words:"true"`                 // Pass --strict to `helm lint`
+	ConvertV2AndUpgrade bool     `split_words:"true"`                 // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
+	DeleteV2Releases    bool     `split_words:"true"`                 // Pass --delete-v2-releases option for 2to3 convert command
+	ReleaseVersionsMax  int      `split_words:"true"`                 // Pass --release-versions-max option for 2to3 convert command
+	TillerNS            string   `envconfig:"tiller_ns"`              // Tiller namespace (--tiller-ns) for 2to3 convert command
+	TillerLabel         string   `split_words:"true"`                 // Tiller label selector (--label) for 2to3 convert command
 
 	Stdout io.Writer `ignored:"true"`
 	Stderr io.Writer `ignored:"true"`
@@ -106,8 +106,12 @@ func NewConfig(stdout, stderr io.Writer) (*Config, error) {
 	// Deprecation messages
 	cfg.varsMessage(deprecatedVars, "Warning: ignoring deprecated '%s' setting\n")
 
-	if !cfg.ConvertV2Releases {
-		cfg.varsMessage(convertVars, "Warning: ignoring '%s' setting as is only used when 'convert_v2_releases' is 'true'\n")
+	if cfg.Command != "convert" {
+		cfg.varsMessage(convertVars, "Warning: ignoring '%s' setting as is only used when 'mode' is 'convert'\n")
+	}
+
+	if !cfg.ConvertV2AndUpgrade && (cfg.Command != "convert") {
+		cfg.varsMessage(convertVars, "Warning: ignoring '%s' setting as is only used when 'mode' is 'convert' or 'convert_v2_and_upgrade' is 'true'\n")
 	}
 
 	return &cfg, nil

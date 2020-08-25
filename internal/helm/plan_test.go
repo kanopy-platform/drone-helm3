@@ -145,7 +145,7 @@ func (suite *PlanTestSuite) TestUpgradeWithAddRepos() {
 
 func (suite *PlanTestSuite) TestUpgradeWithConvert() {
 	cfg := env.Config{
-		ConvertV2Releases: true,
+		ConvertV2AndUpgrade: true,
 	}
 	steps := upgrade(cfg)
 	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
@@ -256,4 +256,20 @@ func (suite *PlanTestSuite) TestDeterminePlanHelpCommand() {
 
 	stepsMaker := determineSteps(cfg)
 	suite.Same(&help, stepsMaker)
+}
+
+func (suite *PlanTestSuite) TestConvert() {
+	steps := convert(env.Config{})
+	suite.Require().Equal(2, len(steps), "upgrade should return 2 steps")
+	suite.IsType(&run.InitKube{}, steps[0])
+	suite.IsType(&run.Convert{}, steps[1])
+}
+
+func (suite *PlanTestSuite) TestDeterminePlanConvertCommand() {
+	cfg := env.Config{
+		Command: "convert",
+	}
+
+	stepsMaker := determineSteps(cfg)
+	suite.Same(&convert, stepsMaker)
 }

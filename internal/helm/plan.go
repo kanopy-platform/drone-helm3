@@ -61,6 +61,8 @@ func determineSteps(cfg env.Config) *func(env.Config) []Step {
 		return &uninstall
 	case "lint":
 		return &lint
+	case "convert":
+		return &convert
 	case "help":
 		return &help
 	default:
@@ -94,7 +96,7 @@ var upgrade = func(cfg env.Config) []Step {
 	var steps []Step
 	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
 
-	if cfg.ConvertV2Releases {
+	if cfg.ConvertV2AndUpgrade {
 		// The "helm" context is coming from the template
 		steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
 	}
@@ -141,4 +143,14 @@ var lint = func(cfg env.Config) []Step {
 
 var help = func(cfg env.Config) []Step {
 	return []Step{run.NewHelp(cfg)}
+}
+
+var convert = func(cfg env.Config) []Step {
+	var steps []Step
+	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+
+	// The "helm" context is coming from the template
+	steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
+
+	return steps
 }
