@@ -53,7 +53,7 @@ type Config struct {
 	ConvertV2Releases  bool     `split_words:"true"`                        // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
 	DeleteV2Releases   bool     `split_words:"true"`                        // Pass --delete-v2-releases option for 2to3 convert command
 	ReleaseVersionsMax int      `split_words:"true"`                        // Pass --release-versions-max option for 2to3 convert command
-	TillerNS           string   `split_words:"true"`  // Tiller namespace (--tiller-ns) for 2to3 convert command
+	TillerNS           string   `envconfig:"tiller_ns"`  // Tiller namespace (--tiller-ns) for 2to3 convert command
 	TillerLabel        string   `split_words:"true"` // Tiller label selector (--label) for 2to3 convert command
 
 	Stdout io.Writer `ignored:"true"`
