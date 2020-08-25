@@ -7,10 +7,10 @@ import (
 
 	convertcmd "github.com/helm/helm-2to3/cmd"
 	"github.com/helm/helm-2to3/pkg/common"
-	"helm.sh/helm/v3/pkg/storage/driver"
 	"github.com/pelotech/drone-helm3/internal/env"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
+	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
 func v3ReleaseFound(release string, cfg *action.Configuration) bool {
@@ -31,19 +31,19 @@ func v3ReleaseFound(release string, cfg *action.Configuration) bool {
 
 // Convert holds the parameters to run the Convert action
 type Convert struct {
-	namespace       string
-	debug action.DebugLog
-	kubeConfig string
-	kubeContext string
-	convertOptions  convertcmd.ConvertOptions
+	namespace      string
+	debug          action.DebugLog
+	kubeConfig     string
+	kubeContext    string
+	convertOptions convertcmd.ConvertOptions
 }
 
 // NewConvert initialize Convert by using values from env.Config
 func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert {
 
 	convert := &Convert{
-		namespace:       cfg.Namespace,
-		kubeConfig: kubeConfig,
+		namespace:   cfg.Namespace,
+		kubeConfig:  kubeConfig,
 		kubeContext: kubeContext,
 	}
 
@@ -59,9 +59,9 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 	}
 
 	if cfg.Debug {
-		convert.debug = func (format string, v ...interface{}) {
+		convert.debug = func(format string, v ...interface{}) {
 			format = fmt.Sprintf("[debug] %s\n", format)
-			log.Output(2, fmt.Sprintf(format, v...))
+			_ = log.Output(2, fmt.Sprintf(format, v...))
 		}
 	}
 
@@ -76,11 +76,7 @@ func (c *Convert) Execute() error {
 	release := c.convertOptions.ReleaseName
 
 	settings := cli.New()
-	// settings.KubeConfig = c.kubeConfig
-	// settings.KubeContext = c.kubeContext
-
 	actionCfg := new(action.Configuration)
-
 	if err := actionCfg.Init(settings.RESTClientGetter(), c.namespace, "secrets", c.debug); err != nil {
 		return err
 	}
