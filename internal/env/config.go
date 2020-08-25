@@ -13,6 +13,7 @@ import (
 var (
 	justNumbers    = regexp.MustCompile(`^\d+$`)
 	deprecatedVars = []string{"PURGE", "RECREATE_PODS", "UPGRADE", "CANARY_IMAGE", "CLIENT_ONLY", "STABLE_REPO_URL"}
+	convertVars    = []string{"DELETE_V2_RELEASES", "RELEASE_VERSIONS_MAX", "TILLER_NS", "TILLER_LABEL"}
 )
 
 // The Config struct captures the `settings` and `environment` blocks in the application's drone
@@ -102,7 +103,12 @@ func NewConfig(stdout, stderr io.Writer) (*Config, error) {
 		cfg.logDebug()
 	}
 
-	cfg.deprecationWarn()
+	// Deprecation messages
+	cfg.varsMessage(deprecatedVars, "Warning: ignoring deprecated '%s' setting\n")
+
+	if !cfg.ConvertV2Releases {
+		cfg.varsMessage(convertVars, "Warning: ignoring '%s' setting as is only used when 'convert_v2_releases' is 'true'\n")
+	}
 
 	return &cfg, nil
 }
@@ -139,14 +145,15 @@ func (cfg Config) logDebug() {
 	fmt.Fprintf(cfg.Stderr, "Generated config: %+v\n", cfg)
 }
 
-func (cfg *Config) deprecationWarn() {
-	for _, varname := range deprecatedVars {
+func (cfg *Config) varsMessage(vars []string, format string) {
+	for _, varname := range vars {
 		_, barePresent := os.LookupEnv(varname)
 		_, prefixedPresent := os.LookupEnv("PLUGIN_" + varname)
 		if barePresent || prefixedPresent {
-			fmt.Fprintf(cfg.Stderr, "Warning: ignoring deprecated '%s' setting\n", strings.ToLower(varname))
+			fmt.Fprintf(cfg.Stderr, format, strings.ToLower(varname))
 		}
 	}
+
 }
 
 // settingAliases provides alternate environment variable names for certain settings, either because
