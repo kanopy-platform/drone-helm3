@@ -145,7 +145,7 @@ func (suite *PlanTestSuite) TestUpgradeWithAddRepos() {
 
 func (suite *PlanTestSuite) TestUpgradeWithConvert() {
 	cfg := env.Config{
-		ConvertV2AndUpgrade: true,
+		EnableV2Conversion: true,
 	}
 	steps := upgrade(cfg)
 	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")

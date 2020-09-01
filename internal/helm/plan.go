@@ -96,7 +96,7 @@ var upgrade = func(cfg env.Config) []Step {
 	var steps []Step
 	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
 
-	if cfg.ConvertV2AndUpgrade {
+	if cfg.EnableV2Conversion {
 		// The "helm" context is coming from the template
 		steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
 	}

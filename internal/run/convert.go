@@ -47,14 +47,14 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 		kubeContext: kubeContext,
 	}
 
-	if cfg.ReleaseVersionsMax == 0 {
-		cfg.ReleaseVersionsMax = 10
+	if cfg.MaxReleaseVersions == 0 {
+		cfg.MaxReleaseVersions = 10
 	}
 
 	convert.convertOptions = convertcmd.ConvertOptions{
 		DeleteRelease:      cfg.DeleteV2Releases,
 		DryRun:             cfg.DryRun,
-		MaxReleaseVersions: cfg.ReleaseVersionsMax,
+		MaxReleaseVersions: cfg.MaxReleaseVersions,
 		ReleaseName:        cfg.Release,
 		StorageType:        "configmap",
 		TillerLabel:        cfg.TillerLabel,
