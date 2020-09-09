@@ -1,7 +1,6 @@
 package run
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -10,22 +9,16 @@ import (
 	"github.com/pelotech/drone-helm3/internal/env"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/storage/driver"
 )
 
 func v3ReleaseFound(release string, cfg *action.Configuration) bool {
 
-	// check if release exists
-	_, err := cfg.Releases.Deployed(release)
-	switch {
-	// case errors.Is(err, driver.ErrReleaseNotFound), errors.Is(err, driver.ErrNoDeployedReleases):
-	case errors.Is(err, driver.ErrReleaseNotFound):
-		log.Printf("No v3 Release of %s found", release)
-	case err == nil:
+	if _, err := cfg.Releases.Deployed(release); err == nil {
 		log.Printf("A v3 Release of %s was found", release)
 		return true
 	}
 
+	log.Printf("No v3 Release of %s found", release)
 	return false
 }
 
