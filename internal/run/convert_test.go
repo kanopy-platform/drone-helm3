@@ -34,7 +34,8 @@ func TestV3ReleaseFound(t *testing.T) {
 		Name: "myapp",
 	}
 
-	cfg.Releases.Create(release.Mock(opts))
+	err := cfg.Releases.Create(release.Mock(opts))
+	assert.NoError(t, err)
 
 	assert.True(t, v3ReleaseFound("myapp", cfg))
 	assert.False(t, v3ReleaseFound("doesnt_exists", cfg))
