@@ -37,6 +37,25 @@ steps:
       mode: upgrade
       chart: ./
       release: my-project
+      # enable_v2_conversion: true
+    environment:
+      KUBE_API_SERVER: https://my.kubernetes.installation/clusters/a-1234
+      KUBE_TOKEN:
+        from_secret: kubernetes_token
+```
+
+### Convert
+
+```yaml
+steps:
+  - name: deploy
+    image: pelotech/drone-helm3
+    settings:
+      mode: convert
+      chart: ./
+      release: my-project
+      namespace: my-namespace
+      tiller_ns: tiller-namespace
     environment:
       KUBE_API_SERVER: https://my.kubernetes.installation/clusters/a-1234
       KUBE_TOKEN:
@@ -63,13 +82,14 @@ steps:
 drone-helm3 is largely backward-compatible with drone-helm. There are some known differences:
 
 * You'll need to migrate the deployments in the cluster [helm-v2-to-helm-v3](https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/).
+  * Or use `mode: convert` on the plugin
 * EKS is not supported. See [#5](https://github.com/pelotech/drone-helm3/issues/5) for more information.
 * The `prefix` setting is no longer supported. If you were relying on the `prefix` setting with `secrets: [...]`, you'll need to switch to the `from_secret` syntax.
 * During uninstallations, the release history is purged by default. Use `keep_history: true` to return to the old behavior.
 * Several settings no longer have any effect. The plugin will produce warnings if any of these are present:
     * `purge` -- this is the default behavior in Helm 3
     * `recreate_pods`
-    * `tiller_ns`
+    * `tiller_ns` -- Only used if `mode: convert` or `enable_v2_conversion == true`
     * `upgrade`
     * `canary_image`
     * `client_only`
