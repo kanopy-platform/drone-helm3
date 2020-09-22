@@ -7,8 +7,13 @@ import (
 	convertcmd "github.com/helm/helm-2to3/cmd"
 	"github.com/helm/helm-2to3/pkg/common"
 	"github.com/pelotech/drone-helm3/internal/env"
+	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 func v3ReleaseFound(release string, cfg *action.Configuration) bool {
@@ -20,6 +25,78 @@ func v3ReleaseFound(release string, cfg *action.Configuration) bool {
 
 	log.Printf("No v3 Release of %s found", release)
 	return false
+}
+
+// clientsetFromFile returns a ready-to-use client from a kubeconfig file
+func clientsetFromFile(path string) (*kubernetes.Clientset, error) {
+	config, err := clientcmd.LoadFromFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to load admin kubeconfig")
+	}
+
+	overrides := clientcmd.ConfigOverrides{Timeout: "15s"}
+	clientConfig, err := clientcmd.NewDefaultClientConfig(*config, &overrides).ClientConfig()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create API client configuration from kubeconfig")
+	}
+
+	client, err := kubernetes.NewForConfig(clientConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create API client")
+	}
+	return client, nil
+}
+
+// getReleaseConfigmaps returns a list of configmaps that are helm v2 releases
+func getReleaseConfigmaps(clientset kubernetes.Interface, release, tillerNamespace, tillerLabel string) (*corev1.ConfigMapList, error) {
+
+	if tillerNamespace == "" {
+		tillerNamespace = "kube-system"
+	}
+	if tillerLabel == "" {
+		tillerLabel = "OWNER=TILLER"
+	}
+	if release != "" {
+		tillerLabel += fmt.Sprintf(",NAME=%s", release)
+	}
+
+	configMaps, err := clientset.CoreV1().ConfigMaps(tillerNamespace).List(metav1.ListOptions{
+		LabelSelector: tillerLabel,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return configMaps, nil
+}
+
+// preserveV2 keeps the helm v2 configmaps by modifying a label
+func preserveV2(clientset kubernetes.Interface, o convertcmd.ConvertOptions) error {
+
+	configMaps, err := getReleaseConfigmaps(clientset, o.ReleaseName, o.TillerNamespace, o.TillerLabel)
+	if err != nil {
+		return err
+	}
+
+	cmClient := clientset.CoreV1().ConfigMaps(o.TillerNamespace)
+
+	var updateErrors []error
+
+	log.Printf("Preserving release versions of %s", o.ReleaseName)
+	for _, item := range configMaps.Items {
+		item.Labels["OWNER"] = "none"
+
+		_, updateErr := cmClient.Update(&item)
+		if updateErr != nil {
+			updateErrors = append(updateErrors, updateErr)
+		}
+	}
+
+	if len(updateErrors) > 0 {
+		return fmt.Errorf("Failure preserving release info of %s", o.ReleaseName)
+	}
+
+	return nil
 }
 
 // Convert holds the parameters to run the Convert action
@@ -88,7 +165,24 @@ func (c *Convert) Execute() error {
 		Context: c.kubeContext,
 	}
 
-	return convertcmd.Convert(c.convertOptions, kc)
+	convertErr := convertcmd.Convert(c.convertOptions, kc)
+	if convertErr != nil {
+		return convertErr
+	}
+
+	clientset, err := clientsetFromFile(c.kubeConfig)
+	if err != nil {
+		return err
+	}
+
+	if !c.convertOptions.DeleteRelease {
+		preserveErr := preserveV2(clientset, c.convertOptions)
+		if preserveErr != nil {
+			return preserveErr
+		}
+	}
+
+	return nil
 }
 
 // Prepare is not used but it's required to fulfill the Step interface
