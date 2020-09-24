@@ -80,20 +80,13 @@ func preserveV2(clientset kubernetes.Interface, o convertcmd.ConvertOptions) err
 
 	cmClient := clientset.CoreV1().ConfigMaps(o.TillerNamespace)
 
-	var updateErrors []error
-
 	log.Printf("Preserving release versions of %s", o.ReleaseName)
 	for _, item := range configMaps.Items {
 		item.Labels["OWNER"] = "none"
 
-		_, updateErr := cmClient.Update(&item)
-		if updateErr != nil {
-			updateErrors = append(updateErrors, updateErr)
+		if _, err := cmClient.Update(&item); err != nil {
+			return fmt.Errorf("Failure preserving release version %s", item.Name)
 		}
-	}
-
-	if len(updateErrors) > 0 {
-		return fmt.Errorf("Failure preserving release info of %s", o.ReleaseName)
 	}
 
 	return nil
