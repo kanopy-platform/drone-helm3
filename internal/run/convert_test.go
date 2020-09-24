@@ -47,9 +47,8 @@ func TestV3ReleaseFound(t *testing.T) {
 	assert.False(t, v3ReleaseFound("doesnt_exists", cfg))
 }
 
-func TestGetReleaseConfigmaps(t *testing.T) {
-
-	clientset := fake.NewSimpleClientset(
+func clientsetWithV2ConfigmapsMock() *fake.Clientset {
+	return fake.NewSimpleClientset(
 		&corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "myapp.v1",
@@ -87,6 +86,11 @@ func TestGetReleaseConfigmaps(t *testing.T) {
 			},
 		},
 	)
+}
+
+func TestGetReleaseConfigmaps(t *testing.T) {
+
+	clientset := clientsetWithV2ConfigmapsMock()
 
 	cmaps, err := getReleaseConfigmaps(clientset, "myapp", "example", "")
 	assert.NoError(t, err)
@@ -95,44 +99,7 @@ func TestGetReleaseConfigmaps(t *testing.T) {
 
 func TestPreserveV2(t *testing.T) {
 
-	clientset := fake.NewSimpleClientset(
-		&corev1.ConfigMap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "myapp.v1",
-				Namespace: "example",
-				Labels: map[string]string{
-					"NAME":    "myapp",
-					"OWNER":   "TILLER",
-					"STATUS":  "DEPLOYED",
-					"VERSION": "1",
-				},
-			},
-		},
-		&corev1.ConfigMap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "myapp.v2",
-				Namespace: "example",
-				Labels: map[string]string{
-					"NAME":    "myapp",
-					"OWNER":   "TILLER",
-					"STATUS":  "DEPLOYED",
-					"VERSION": "2",
-				},
-			},
-		},
-		&corev1.ConfigMap{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "other.v1",
-				Namespace: "example",
-				Labels: map[string]string{
-					"NAME":    "other",
-					"OWNER":   "TILLER",
-					"STATUS":  "DEPLOYED",
-					"VERSION": "1",
-				},
-			},
-		},
-	)
+	clientset := clientsetWithV2ConfigmapsMock()
 
 	clientset.Fake.AddReactor("update", "configmap", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
 		configmapList := &corev1.ConfigMapList{
@@ -179,15 +146,31 @@ func TestPreserveV2(t *testing.T) {
 	err := preserveV2(clientset, opts)
 	assert.NoError(t, err)
 
-	myappv1, err := clientset.CoreV1().ConfigMaps("example").Get("myapp.v1", metav1.GetOptions{})
-	assert.NoError(t, err)
-	assert.Equal(t, myappv1.Labels["OWNER"], "none")
+	tests := []struct {
+		namespace       string
+		configmapName   string
+		ownerLabelValue string
+	}{
+		{
+			namespace:       "example",
+			configmapName:   "myapp.v1",
+			ownerLabelValue: "none",
+		},
+		{
+			namespace:       "example",
+			configmapName:   "myapp.v2",
+			ownerLabelValue: "none",
+		},
+		{
+			namespace:       "example",
+			configmapName:   "other.v1",
+			ownerLabelValue: "TILLER",
+		},
+	}
 
-	myappv2, err := clientset.CoreV1().ConfigMaps("example").Get("myapp.v2", metav1.GetOptions{})
-	assert.NoError(t, err)
-	assert.Equal(t, myappv2.Labels["OWNER"], "none")
-
-	other, err := clientset.CoreV1().ConfigMaps("example").Get("other.v1", metav1.GetOptions{})
-	assert.NoError(t, err)
-	assert.NotEqual(t, other.Labels["OWNER"], "none")
+	for _, test := range tests {
+		cm, err := clientset.CoreV1().ConfigMaps(test.namespace).Get(test.configmapName, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.Equal(t, cm.Labels["OWNER"], test.ownerLabelValue)
+	}
 }
