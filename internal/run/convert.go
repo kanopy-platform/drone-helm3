@@ -165,9 +165,8 @@ func (c *Convert) Execute() error {
 		Context: c.kubeContext,
 	}
 
-	convertErr := convertcmd.Convert(c.convertOptions, kc)
-	if convertErr != nil {
-		return convertErr
+	if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
+		return err
 	}
 
 	clientset, err := clientsetFromFile(c.kubeConfig)
@@ -176,9 +175,8 @@ func (c *Convert) Execute() error {
 	}
 
 	if !c.convertOptions.DeleteRelease {
-		preserveErr := preserveV2(clientset, c.convertOptions)
-		if preserveErr != nil {
-			return preserveErr
+		if err := preserveV2(clientset, c.convertOptions); err != nil {
+			return err
 		}
 	}
 
