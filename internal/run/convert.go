@@ -98,7 +98,7 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 	return convert
 }
 
-// getReleaseConfigmaps returns a list of configmaps that are helm v2 releases
+// getV2ReleaseConfigmaps returns a list of configmaps that are helm v2 releases
 func (c *Convert) getV2ReleaseConfigmaps(clientset kubernetes.Interface) (*corev1.ConfigMapList, error) {
 
 	return clientset.CoreV1().ConfigMaps(c.convertOptions.TillerNamespace).List(metav1.ListOptions{
@@ -106,7 +106,7 @@ func (c *Convert) getV2ReleaseConfigmaps(clientset kubernetes.Interface) (*corev
 	})
 }
 
-// preserveV2 keeps the helm v2 configmaps by modifying a label
+// preserveV2ReleaseConfigmaps keeps the helm v2 configmaps by modifying a label
 func (c *Convert) preserveV2ReleaseConfigmaps(clientset kubernetes.Interface, configmaps *corev1.ConfigMapList, ownerLabelValue string) error {
 
 	tillerNamespace := c.convertOptions.TillerNamespace
