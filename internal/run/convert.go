@@ -40,56 +40,7 @@ func clientsetFromFile(path string) (*kubernetes.Clientset, error) {
 		return nil, errors.Wrap(err, "failed to create API client configuration from kubeconfig")
 	}
 
-	client, err := kubernetes.NewForConfig(clientConfig)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create API client")
-	}
-	return client, nil
-}
-
-// getReleaseConfigmaps returns a list of configmaps that are helm v2 releases
-func getReleaseConfigmaps(clientset kubernetes.Interface, release, tillerNamespace, tillerLabel string) (*corev1.ConfigMapList, error) {
-
-	if tillerNamespace == "" {
-		tillerNamespace = "kube-system"
-	}
-	if tillerLabel == "" {
-		tillerLabel = "OWNER=TILLER"
-	}
-	if release != "" {
-		tillerLabel += fmt.Sprintf(",NAME=%s", release)
-	}
-
-	configMaps, err := clientset.CoreV1().ConfigMaps(tillerNamespace).List(metav1.ListOptions{
-		LabelSelector: tillerLabel,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return configMaps, nil
-}
-
-// preserveV2 keeps the helm v2 configmaps by modifying a label
-func preserveV2(clientset kubernetes.Interface, o convertcmd.ConvertOptions) error {
-
-	configMaps, err := getReleaseConfigmaps(clientset, o.ReleaseName, o.TillerNamespace, o.TillerLabel)
-	if err != nil {
-		return err
-	}
-
-	cmClient := clientset.CoreV1().ConfigMaps(o.TillerNamespace)
-
-	log.Printf("Preserving release versions of %s", o.ReleaseName)
-	for _, item := range configMaps.Items {
-		item.Labels["OWNER"] = "none"
-
-		if _, err := cmClient.Update(&item); err != nil {
-			return fmt.Errorf("Failure preserving release version %s", item.Name)
-		}
-	}
-
-	return nil
+	return kubernetes.NewForConfig(clientConfig)
 }
 
 // Convert holds the parameters to run the Convert action
@@ -114,6 +65,18 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 		cfg.MaxReleaseVersions = 10
 	}
 
+	if cfg.TillerNS == "" {
+		cfg.TillerNS = "kube-system"
+	}
+
+	if cfg.TillerLabel == "" {
+		cfg.TillerLabel = "OWNER=TILLER"
+	}
+
+	if cfg.Release != "" {
+		cfg.TillerLabel += fmt.Sprintf(",NAME=%s", cfg.Release)
+	}
+
 	convert.convertOptions = convertcmd.ConvertOptions{
 		DeleteRelease:      cfg.DeleteV2Releases,
 		DryRun:             cfg.DryRun,
@@ -133,6 +96,31 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 	}
 
 	return convert
+}
+
+// getReleaseConfigmaps returns a list of configmaps that are helm v2 releases
+func (c *Convert) getV2ReleaseConfigmaps(clientset kubernetes.Interface) (*corev1.ConfigMapList, error) {
+
+	return clientset.CoreV1().ConfigMaps(c.convertOptions.TillerNamespace).List(metav1.ListOptions{
+		LabelSelector: c.convertOptions.TillerLabel,
+	})
+}
+
+// preserveV2 keeps the helm v2 configmaps by modifying a label
+func (c *Convert) preserveV2ReleaseConfigmaps(clientset kubernetes.Interface, configmaps *corev1.ConfigMapList, ownerLabelValue string) error {
+
+	tillerNamespace := c.convertOptions.TillerNamespace
+
+	log.Printf("Preserving release versions of %s", c.convertOptions.ReleaseName)
+	for _, item := range configmaps.Items {
+		item.Labels["OWNER"] = ownerLabelValue
+
+		if _, err := clientset.CoreV1().ConfigMaps(tillerNamespace).Update(&item); err != nil {
+			return fmt.Errorf("Failure preserving release version %s", item.Name)
+		}
+	}
+
+	return nil
 }
 
 // Execute runs Convert from 2to3 package
@@ -158,17 +146,22 @@ func (c *Convert) Execute() error {
 		Context: c.kubeContext,
 	}
 
-	if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
-		return err
-	}
-
 	clientset, err := clientsetFromFile(c.kubeConfig)
 	if err != nil {
 		return err
 	}
 
+	configmaps, err := c.getV2ReleaseConfigmaps(clientset)
+	if err != nil {
+		return err
+	}
+
+	if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
+		return err
+	}
+
 	if !c.convertOptions.DeleteRelease {
-		if err := preserveV2(clientset, c.convertOptions); err != nil {
+		if err := c.preserveV2ReleaseConfigmaps(clientset, configmaps, "converted-to-helm3"); err != nil {
 			return err
 		}
 	}

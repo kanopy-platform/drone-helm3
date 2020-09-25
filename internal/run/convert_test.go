@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/pelotech/drone-helm3/internal/env"
+
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chartutil"
 	kubefake "helm.sh/helm/v3/pkg/kube/fake"
@@ -11,7 +13,6 @@ import (
 	"helm.sh/helm/v3/pkg/storage"
 	"helm.sh/helm/v3/pkg/storage/driver"
 
-	convertcmd "github.com/helm/helm-2to3/cmd"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -88,17 +89,19 @@ func clientsetWithV2ConfigmapsMock() *fake.Clientset {
 	)
 }
 
-func TestGetReleaseConfigmaps(t *testing.T) {
+func TestGetV2ReleaseConfigmaps(t *testing.T) {
 
+	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
 	clientset := clientsetWithV2ConfigmapsMock()
 
-	cmaps, err := getReleaseConfigmaps(clientset, "myapp", "example", "")
+	cmaps, err := c.getV2ReleaseConfigmaps(clientset)
 	assert.NoError(t, err)
 	assert.Equal(t, len(cmaps.Items), 2)
 }
 
-func TestPreserveV2(t *testing.T) {
+func TestPreserveV2ReleaseConfigmaps(t *testing.T) {
 
+	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
 	clientset := clientsetWithV2ConfigmapsMock()
 
 	clientset.Fake.AddReactor("update", "configmap", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
@@ -134,16 +137,10 @@ func TestPreserveV2(t *testing.T) {
 		return true, configmapList, nil
 	})
 
-	opts := convertcmd.ConvertOptions{
-		DeleteRelease:    false,
-		DryRun:           false,
-		ReleaseName:      "myapp",
-		StorageType:      "configmap",
-		TillerNamespace:  "example",
-		TillerOutCluster: false,
-	}
+	cmaps, err := c.getV2ReleaseConfigmaps(clientset)
+	assert.NoError(t, err)
 
-	err := preserveV2(clientset, opts)
+	err = c.preserveV2ReleaseConfigmaps(clientset, cmaps, "none")
 	assert.NoError(t, err)
 
 	tests := []struct {
