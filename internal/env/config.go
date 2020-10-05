@@ -51,7 +51,7 @@ type Config struct {
 	AtomicUpgrade      bool     `split_words:"true"`                 // Pass --atomic to `helm upgrade`
 	CleanupOnFail      bool     `envconfig:"cleanup_failed_upgrade"` // Pass --cleanup-on-fail to `helm upgrade`
 	LintStrictly       bool     `split_words:"true"`                 // Pass --strict to `helm lint`
-	EnableV2Conversion bool     `split_words:"true"`                 // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
+	EnableV2Conversion bool     `split_words:"true" default:"true"`  // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
 	DeleteV2Releases   bool     `split_words:"true"`                 // Pass --delete-v2-releases option for 2to3 convert command
 	MaxReleaseVersions int      `split_words:"true"`                 // Pass --release-versions-max option for 2to3 convert command
 	TillerNS           string   `envconfig:"tiller_ns"`              // Tiller namespace (--tiller-ns) for 2to3 convert command
