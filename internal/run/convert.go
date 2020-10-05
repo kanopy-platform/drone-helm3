@@ -73,9 +73,8 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 		cfg.TillerLabel = "OWNER=TILLER"
 	}
 
-	if cfg.Release != "" {
-		cfg.TillerLabel += fmt.Sprintf(",NAME=%s", cfg.Release)
-	}
+	// Build the label selector "OWNER=TILLER,NAME=myapp"
+	cfg.TillerLabel += fmt.Sprintf(",NAME=%s", cfg.Release)
 
 	convert.convertOptions = convertcmd.ConvertOptions{
 		DeleteRelease:      cfg.DeleteV2Releases,
@@ -169,7 +168,12 @@ func (c *Convert) Execute() error {
 	return nil
 }
 
-// Prepare is not used but it's required to fulfill the Step interface
+// Prepare checks required inputs
 func (c *Convert) Prepare() error {
+
+	if c.convertOptions.ReleaseName == "" {
+		return fmt.Errorf("release is required")
+	}
+
 	return nil
 }
