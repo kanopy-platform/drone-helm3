@@ -16,9 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes/fake"
-	k8stesting "k8s.io/client-go/testing"
 )
 
 func mockActions(t *testing.T) *action.Configuration {
@@ -49,6 +47,7 @@ func TestV3ReleaseFound(t *testing.T) {
 }
 
 func clientsetWithV2ConfigmapsMock() *fake.Clientset {
+
 	return fake.NewSimpleClientset(
 		&corev1.ConfigMap{
 			ObjectMeta: metav1.ObjectMeta{
@@ -94,48 +93,45 @@ func TestGetV2ReleaseConfigmaps(t *testing.T) {
 	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
 	clientset := clientsetWithV2ConfigmapsMock()
 
+	expectedConfigmaps := &corev1.ConfigMapList{
+		Items: []corev1.ConfigMap{
+			corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "myapp.v1",
+					Namespace: "example",
+					Labels: map[string]string{
+						"NAME":    "myapp",
+						"OWNER":   "TILLER",
+						"STATUS":  "DEPLOYED",
+						"VERSION": "1",
+					},
+				},
+			},
+			corev1.ConfigMap{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "myapp.v2",
+					Namespace: "example",
+					Labels: map[string]string{
+						"NAME":    "myapp",
+						"OWNER":   "TILLER",
+						"STATUS":  "DEPLOYED",
+						"VERSION": "2",
+					},
+				},
+			},
+		},
+	}
+
 	cmaps, err := c.getV2ReleaseConfigmaps(clientset)
 	assert.NoError(t, err)
 	assert.Equal(t, len(cmaps.Items), 2)
+	assert.Equal(t, cmaps, expectedConfigmaps)
 }
 
 func TestPreserveV2ReleaseConfigmaps(t *testing.T) {
 
 	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
 	clientset := clientsetWithV2ConfigmapsMock()
-
-	clientset.Fake.AddReactor("update", "configmap", func(action k8stesting.Action) (handled bool, ret runtime.Object, err error) {
-		configmapList := &corev1.ConfigMapList{
-			Items: []corev1.ConfigMap{
-				corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "myapp.v1",
-						Namespace: "example",
-						Labels: map[string]string{
-							"NAME":    "myapp",
-							"OWNER":   "none",
-							"STATUS":  "DEPLOYED",
-							"VERSION": "1",
-						},
-					},
-				},
-				corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "myapp.v2",
-						Namespace: "example",
-						Labels: map[string]string{
-							"NAME":    "myapp",
-							"OWNER":   "none",
-							"STATUS":  "DEPLOYED",
-							"VERSION": "2",
-						},
-					},
-				},
-			},
-		}
-
-		return true, configmapList, nil
-	})
 
 	cmaps, err := c.getV2ReleaseConfigmaps(clientset)
 	assert.NoError(t, err)
