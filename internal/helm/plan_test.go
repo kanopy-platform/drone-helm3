@@ -2,10 +2,11 @@ package helm
 
 import (
 	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/suite"
 	"strings"
 	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/pelotech/drone-helm3/internal/env"
 	"github.com/pelotech/drone-helm3/internal/run"
@@ -144,9 +145,7 @@ func (suite *PlanTestSuite) TestUpgradeWithAddRepos() {
 }
 
 func (suite *PlanTestSuite) TestUpgradeWithConvert() {
-	cfg := env.Config{
-		EnableV2Conversion: true,
-	}
+	cfg := env.Config{}
 	steps := upgrade(cfg)
 	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
 	suite.IsType(&run.InitKube{}, steps[0])

@@ -3,9 +3,10 @@ package helm
 import (
 	"errors"
 	"fmt"
+	"os"
+
 	"github.com/pelotech/drone-helm3/internal/env"
 	"github.com/pelotech/drone-helm3/internal/run"
-	"os"
 )
 
 const (
@@ -96,7 +97,7 @@ var upgrade = func(cfg env.Config) []Step {
 	var steps []Step
 	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
 
-	if cfg.EnableV2Conversion {
+	if !cfg.DisableV2Conversion {
 		// The "helm" context is coming from the template
 		steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
 	}
