@@ -1,4 +1,4 @@
-module github.com/pelotech/drone-helm3
+module github.com/mongodb-forks/drone-helm3
 
 go 1.13
 

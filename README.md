@@ -1,7 +1,7 @@
 # Drone plugin for Helm 3
 
 [![Build Status](https://cloud.drone.io/api/badges/pelotech/drone-helm3/status.svg)](https://cloud.drone.io/pelotech/drone-helm3)
-[![Go Report](https://goreportcard.com/badge/github.com/pelotech/drone-helm3)](https://goreportcard.com/report/github.com/pelotech/drone-helm3)
+[![Go Report](https://goreportcard.com/badge/github.com/mongodb-forks/drone-helm3)](https://goreportcard.com/report/github.com/mongodb-forks/drone-helm3)
 [![](https://images.microbadger.com/badges/image/pelotech/drone-helm3.svg)](https://microbadger.com/images/pelotech/drone-helm3 "Get your own image badge on microbadger.com")
 
 This plugin provides an interface between [Drone](https://drone.io/) and [Helm 3](https://github.com/kubernetes/helm):
@@ -83,7 +83,7 @@ drone-helm3 is largely backward-compatible with drone-helm. There are some known
 
 * You'll need to migrate the deployments in the cluster [helm-v2-to-helm-v3](https://helm.sh/blog/migrate-from-helm-v2-to-helm-v3/).
   * Or use `mode: convert` on the plugin
-* EKS is not supported. See [#5](https://github.com/pelotech/drone-helm3/issues/5) for more information.
+* EKS is not supported. See [#5](https://github.com/mongodb-forks/drone-helm3/issues/5) for more information.
 * The `prefix` setting is no longer supported. If you were relying on the `prefix` setting with `secrets: [...]`, you'll need to switch to the `from_secret` syntax.
 * During uninstallations, the release history is purged by default. Use `keep_history: true` to return to the old behavior.
 * Several settings no longer have any effect. The plugin will produce warnings if any of these are present:

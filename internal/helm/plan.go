@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/pelotech/drone-helm3/internal/env"
-	"github.com/pelotech/drone-helm3/internal/run"
+	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/mongodb-forks/drone-helm3/internal/run"
 )
 
 const (
