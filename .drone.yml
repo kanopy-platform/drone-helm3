@@ -12,7 +12,7 @@ steps:
   - name: lint
     image: cytopia/golint
     commands:
-      - make lint
+      - golint -set_exit_status ./...
 
   - name: publish_linux_amd64
     image: plugins/docker
