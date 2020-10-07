@@ -1,32 +1,55 @@
+---
 kind: pipeline
-type: docker
+type: kubernetes
 name: default
-
 
 steps:
   - name: test
-    image: golang:1.13
+    image: golang:1.13-buster
     commands:
-      - go test ./cmd/... ./internal/...
-      - go vet ./cmd/... ./internal/...
+      - make test
+
   - name: lint
     image: cytopia/golint
     commands:
-      - golint -set_exit_status ./cmd/... ./internal/...
-  - name: build
-    image: golang:1.13
-    commands:
-      - go build -o build/drone-helm cmd/drone-helm/main.go
+      - make lint
+
   - name: publish_linux_amd64
     image: plugins/docker
     settings:
-      auto_tag: true
+      registry: quay.io
+      repo: quay.io/mongodb/drone-helm
       username:
         from_secret: docker_username
       password:
         from_secret: docker_password
-      repo:
-        from_secret: plugin_repo
-      dockerfile: Dockerfile
+      tags:
+        - git-${DRONE_COMMIT_SHA:0:7}
+        - latest
     when:
-      event: [ tag, push ]
+      branch:
+        - master
+      event: 
+        - push
+
+  - name: publish_linux_amd64_tag
+    image: plugins/docker
+    settings:
+      registry: quay.io
+      repo: quay.io/mongodb/drone-helm
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      tags:
+        - git-${DRONE_COMMIT_SHA:0:7}
+        - ${DRONE_TAG}
+        - latest
+    when:
+      event: 
+        - tag
+---
+kind: signature
+hmac: 69cab5cc95f81984e2e9629c1f502fe4e69eb741b6c64770350bf3efa2eff86b
+
+...
