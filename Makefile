@@ -6,3 +6,6 @@ lint:
 
 test:
 	go test -cover ./...
+
+sign:
+	drone sign mongodb-forks/drone-helm3 --save
