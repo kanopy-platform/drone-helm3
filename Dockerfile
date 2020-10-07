@@ -18,11 +18,6 @@ MAINTAINER MongoDB Infrastructure Team
 LABEL description="Helm v3 drone plugin with support for automatic migration from v2"
 LABEL base="alpine/helm"
 
-RUN apk add git && \
-    helm plugin install https://github.com/helm/helm-2to3.git --version v0.6.0 && \
-    apk del git && \
-    rm -f /var/cache/apk/*
-
 COPY --from=builder /go/bin/drone-helm /bin/drone-helm
 COPY ./assets/kubeconfig.tpl /root/.kube/config.tpl
 
