@@ -23,7 +23,7 @@ The examples below give a minimal and sufficient configuration for each use-case
 ```yaml
 steps:
   - name: lint
-    image: pelotech/drone-helm3
+    image: quay.io/mongodb/drone-helm:v3
     settings:
       mode: lint
       chart: ./
@@ -34,7 +34,7 @@ steps:
 ```yaml
 steps:
   - name: deploy
-    image: pelotech/drone-helm3
+    image: quay.io/mongodb/drone-helm:v3
     settings:
       mode: upgrade
       chart: ./
@@ -51,7 +51,7 @@ steps:
 ```yaml
 steps:
   - name: deploy
-    image: pelotech/drone-helm3
+    image: quay.io/mongodb/drone-helm:v3
     settings:
       mode: convert
       chart: ./
@@ -70,7 +70,7 @@ steps:
 ```yaml
 steps:
   - name: uninstall
-    image: pelotech/drone-helm3
+    image: quay.io/mongodb/drone-helm:v3
     settings:
       mode: uninstall
       release: my-project
