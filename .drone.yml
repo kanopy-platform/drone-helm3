@@ -29,7 +29,7 @@ steps:
     when:
       branch:
         - master
-      event: 
+      event:
         - push
 
   - name: publish_linux_amd64_tag
@@ -46,7 +46,7 @@ steps:
         - ${DRONE_TAG}
         - latest
     when:
-      event: 
+      event:
         - tag
 ---
 kind: signature
