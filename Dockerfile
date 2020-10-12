@@ -1,5 +1,5 @@
 # --- Build the plugin cli first ---
-FROM golang:1.13.14-alpine3.12 as builder
+FROM golang:1.15.2-alpine as builder
 
 ENV GO111MODULE=on
 WORKDIR /app
@@ -12,9 +12,9 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/drone-helm ./cmd/drone-helm
 
 # --- Copy the cli to an image with helm already installed ---
-FROM alpine/helm:3.2.4
+FROM alpine/helm:3.3.4
 
-MAINTAINER MongoDB Infrastructure Team
+LABEL maintainer="MongoDB Infrastructure Team"
 LABEL description="Helm v3 drone plugin with support for automatic migration from v2"
 LABEL base="alpine/helm"
 
