@@ -1,10 +1,11 @@
 package run
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type UninstallTestSuite struct {
@@ -75,7 +76,8 @@ func (suite *UninstallTestSuite) TestPrepareAndExecute() {
 	expected := []string{"uninstall", "zayde_wølf_king"}
 	suite.Equal(expected, actual)
 
-	u.Execute()
+	err := u.Execute()
+	suite.Require().Nil(err)
 }
 
 func (suite *UninstallTestSuite) TestPrepareDryRunFlag() {

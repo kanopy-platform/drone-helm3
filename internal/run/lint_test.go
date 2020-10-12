@@ -1,11 +1,12 @@
 package run
 
 import (
+	"strings"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 	"github.com/stretchr/testify/suite"
-	"strings"
-	"testing"
 )
 
 type LintTestSuite struct {
@@ -80,7 +81,8 @@ func (suite *LintTestSuite) TestPrepareAndExecute() {
 
 	err := l.Prepare()
 	suite.Require().Nil(err)
-	l.Execute()
+	err = l.Execute()
+	suite.Require().Nil(err)
 }
 
 func (suite *LintTestSuite) TestPrepareRequiresChart() {

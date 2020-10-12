@@ -2,11 +2,12 @@ package run
 
 import (
 	"fmt"
+	"strings"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 	"github.com/stretchr/testify/suite"
-	"strings"
-	"testing"
 )
 
 type UpgradeTestSuite struct {
@@ -93,7 +94,8 @@ func (suite *UpgradeTestSuite) TestPrepareAndExecute() {
 
 	err := u.Prepare()
 	suite.Require().Nil(err)
-	u.Execute()
+	err = u.Execute()
+	suite.Require().Nil(err)
 }
 
 func (suite *UpgradeTestSuite) TestPrepareNamespaceFlag() {
@@ -213,7 +215,8 @@ func (suite *UpgradeTestSuite) TestPrepareDebugFlag() {
 	suite.mockCmd.EXPECT().
 		Stderr(&stderr)
 
-	u.Prepare()
+	err := u.Prepare()
+	suite.Require().Nil(err)
 
 	want := fmt.Sprintf("Generated command: '%s --debug upgrade "+
 		"--install lewis_capaldi_someone_you_loved at40'\n", helmBin)

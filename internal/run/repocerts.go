@@ -3,8 +3,9 @@ package run
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
 	"io/ioutil"
+
+	"github.com/mongodb-forks/drone-helm3/internal/env"
 )
 
 type repoCerts struct {
@@ -26,10 +27,11 @@ func newRepoCerts(cfg env.Config) *repoCerts {
 func (rc *repoCerts) write() error {
 	if rc.cert != "" {
 		file, err := ioutil.TempFile("", "repo********.cert")
-		defer file.Close()
 		if err != nil {
 			return fmt.Errorf("failed to create certificate file: %w", err)
 		}
+		defer file.Close()
+
 		rc.certFilename = file.Name()
 		rawCert, err := base64.StdEncoding.DecodeString(rc.cert)
 		if err != nil {
@@ -45,10 +47,11 @@ func (rc *repoCerts) write() error {
 
 	if rc.caCert != "" {
 		file, err := ioutil.TempFile("", "repo********.ca.cert")
-		defer file.Close()
 		if err != nil {
 			return fmt.Errorf("failed to create CA certificate file: %w", err)
 		}
+		defer file.Close()
+
 		rc.caCertFilename = file.Name()
 		rawCert, err := base64.StdEncoding.DecodeString(rc.caCert)
 		if err != nil {

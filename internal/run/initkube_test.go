@@ -2,14 +2,15 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
-	"github.com/stretchr/testify/suite"
-	yaml "gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
 	"text/template"
+
+	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/stretchr/testify/suite"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type InitKubeTestSuite struct {
@@ -219,7 +220,8 @@ func (suite *InitKubeTestSuite) TestPrepareDefaultsServiceAccount() {
 	}
 	init := NewInitKube(cfg, templateFile.Name(), configFile.Name())
 
-	init.Prepare()
+	err = init.Prepare()
+	suite.Require().Nil(err)
 	suite.Equal("helm", init.values.ServiceAccount)
 }
 
