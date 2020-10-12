@@ -5,14 +5,22 @@ name: default
 
 steps:
   - name: test
-    image: golang:1.13-buster
+    image: golangci/golangci-lint:v1.30.0-alpine
     commands:
+      - apk update
+      - apk add make
       - make test
 
-  - name: lint
-    image: cytopia/golint
+  - name: snyk
+    image: snyk/snyk:golang-1.14
+    environment:
+      SNYK_TOKEN:
+        from_secret: snyk_token
     commands:
-      - golint -set_exit_status ./...
+      - snyk monitor
+    when:
+      event: 
+        - push
 
   - name: publish_linux_amd64
     image: plugins/docker
@@ -50,6 +58,6 @@ steps:
         - tag
 ---
 kind: signature
-hmac: 8329e42fe25499744eb7522048352e62e7bf776fc0db251d549c4ef2826c790d
+hmac: 8acd8d3c8bc817c2112fa860d78aede4eaffb45660b04d4cbf2628ef141f8c83
 
 ...
