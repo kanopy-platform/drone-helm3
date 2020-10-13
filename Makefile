@@ -1,6 +1,5 @@
 MODULE := github.com/mongodb-forks/drone-helm3
 CMD_NAME ?= drone-helm
-VERSION := $(shell grep '^const Version =' internal/version/version.go | cut -d\" -f2)
 
 RUN ?= .*
 PKG ?= ./...
