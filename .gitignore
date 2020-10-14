@@ -17,5 +17,3 @@
 # vendor/
 .env
 .secrets
-
-build/*

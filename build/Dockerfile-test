@@ -1,0 +1,16 @@
+FROM golangci/golangci-lint:v1.30.0-alpine as cache
+ENV GOLANGCI_LINT_CACHE /root/.cache/go-build
+WORKDIR $GOPATH/src/github.com/mongodb-forks/drone-helm3
+
+# download modules
+COPY go.mod go.sum ./
+RUN go mod download
+
+# install make
+RUN apk add make
+
+# build cache
+COPY internal internal
+COPY assets assets
+RUN golangci-lint run --timeout=5m \
+ && go test ./...
