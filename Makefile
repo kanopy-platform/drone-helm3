@@ -20,11 +20,6 @@ docker-test: ## Run tests using local development docker image
 docker-snyk: ## Run local snyk scan, SNYK_TOKEN environment variable must be set
 	@docker run --rm -e SNYK_TOKEN -w /go/src/$(MODULE) -v $(shell pwd):/go/src/$(MODULE):delegated snyk/snyk:golang
 
-# build local docker image
-.PHONY: build
-build:
-	@docker build -t drone-helm -t drone-helm3 .
-
 .PHONY: drone-sign
 drone-sign:
 	drone sign mongodb-forks/drone-helm3 --save
