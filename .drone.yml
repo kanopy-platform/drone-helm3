@@ -33,7 +33,6 @@ steps:
         from_secret: docker_password
       tags:
         - git-${DRONE_COMMIT_SHA:0:7}
-        - latest
     when:
       branch:
         - master
@@ -52,7 +51,6 @@ steps:
       tags:
         - git-${DRONE_COMMIT_SHA:0:7}
         - ${DRONE_TAG}
-        - latest
     when:
       event:
         - tag
