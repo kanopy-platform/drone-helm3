@@ -51,11 +51,12 @@ steps:
       tags:
         - git-${DRONE_COMMIT_SHA:0:7}
         - ${DRONE_TAG}
+        - v3
     when:
       event:
         - tag
 ---
 kind: signature
-hmac: 9a715e0273d343b041792ca9b4ddf0f40baf1de8e32f1b5ab4783d77a0ffbc7a
+hmac: 062dab517eff06bb593ae991438b25a1237b656247e7b0d0f447e6f8e7f262d1
 
 ...
