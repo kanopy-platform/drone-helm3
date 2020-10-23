@@ -118,10 +118,11 @@ func (suite *PlanTestSuite) TestExecuteAbortsOnError() {
 
 func (suite *PlanTestSuite) TestUpgrade() {
 	steps := upgrade(env.Config{})
-	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
+	suite.Require().Equal(4, len(steps), "upgrade should return 4 steps")
 	suite.IsType(&run.InitKube{}, steps[0])
 	suite.IsType(&run.Convert{}, steps[1])
-	suite.IsType(&run.Upgrade{}, steps[2])
+	suite.IsType(&run.MapKube{}, steps[2])
+	suite.IsType(&run.Upgrade{}, steps[3])
 }
 
 func (suite *PlanTestSuite) TestUpgradeWithUpdateDependencies() {
@@ -129,10 +130,11 @@ func (suite *PlanTestSuite) TestUpgradeWithUpdateDependencies() {
 		UpdateDependencies: true,
 	}
 	steps := upgrade(cfg)
-	suite.Require().Equal(4, len(steps), "upgrade should have a third step when DepUpdate is true")
+	suite.Require().Equal(5, len(steps), "upgrade should have a third step when DepUpdate is true")
 	suite.IsType(&run.InitKube{}, steps[0])
 	suite.IsType(&run.Convert{}, steps[1])
 	suite.IsType(&run.DepUpdate{}, steps[2])
+	suite.IsType(&run.MapKube{}, steps[3])
 }
 
 func (suite *PlanTestSuite) TestUpgradeWithAddRepos() {
@@ -150,9 +152,10 @@ func (suite *PlanTestSuite) TestUpgradeWithAddRepos() {
 func (suite *PlanTestSuite) TestUpgradeWithoutConvert() {
 
 	steps := upgrade(env.Config{DisableV2Conversion: true})
-	suite.Require().Equal(2, len(steps), "upgrade should return 2 steps")
+	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
 	suite.IsType(&run.InitKube{}, steps[0])
-	suite.IsType(&run.Upgrade{}, steps[1])
+	suite.IsType(&run.MapKube{}, steps[1])
+	suite.IsType(&run.Upgrade{}, steps[2])
 }
 
 func (suite *PlanTestSuite) TestUninstall() {

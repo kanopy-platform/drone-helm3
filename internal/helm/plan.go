@@ -114,6 +114,10 @@ var upgrade = func(cfg env.Config) []Step {
 		steps = append(steps, run.NewDepUpdate(cfg))
 	}
 
+	if !cfg.DisableMapKubeAPI {
+		steps = append(steps, run.NewMapKube(cfg, kubeConfigFile, "helm", false))
+	}
+
 	steps = append(steps, run.NewUpgrade(cfg))
 
 	return steps

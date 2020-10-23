@@ -7,6 +7,7 @@ replace github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.2+inc
 require (
 	github.com/golang/mock v1.3.1
 	github.com/helm/helm-2to3 v0.6.0
+	github.com/hickeyma/helm-mapkubeapis v0.0.15
 	github.com/joho/godotenv v1.3.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/pkg/errors v0.9.1

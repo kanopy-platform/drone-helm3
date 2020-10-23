@@ -56,6 +56,7 @@ type Config struct {
 	MaxReleaseVersions  int      `split_words:"true"`                 // Pass --release-versions-max option for 2to3 convert command
 	TillerNS            string   `envconfig:"tiller_ns"`              // Tiller namespace (--tiller-ns) for 2to3 convert command
 	TillerLabel         string   `split_words:"true"`                 // Tiller label selector (--label) for 2to3 convert command
+	DisableMapKubeAPI   bool     `envconfig:"disable_mapkubeapi"`     // Disable running mapkubeapi before an upgrade
 
 	Stdout io.Writer `ignored:"true"`
 	Stderr io.Writer `ignored:"true"`
