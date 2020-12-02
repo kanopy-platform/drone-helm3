@@ -66,7 +66,7 @@ func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert 
 	}
 
 	if cfg.TillerNS == "" {
-		cfg.TillerNS = "kube-system"
+		cfg.TillerNS = cfg.Namespace
 	}
 
 	if cfg.TillerLabel == "" {
