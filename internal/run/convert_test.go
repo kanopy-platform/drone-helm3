@@ -88,6 +88,31 @@ func clientsetWithV2ConfigmapsMock() *fake.Clientset {
 	)
 }
 
+func TestTillerNSValue(t *testing.T) {
+
+	tests := []struct {
+		release   string
+		tillerNS  string
+		namespace string
+	}{
+		{
+			release:   "myapp",
+			tillerNS:  "example",
+			namespace: "other",
+		},
+		{
+			release:   "myapp",
+			tillerNS:  "",
+			namespace: "example",
+		},
+	}
+
+	for _, test := range tests {
+		c := NewConvert(env.Config{Release: test.release, TillerNS: test.tillerNS, Namespace: test.namespace}, "", "")
+		assert.Equal(t, c.convertOptions.TillerNamespace, "example")
+	}
+}
+
 func TestGetV2ReleaseConfigmaps(t *testing.T) {
 
 	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
