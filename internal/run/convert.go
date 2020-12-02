@@ -145,27 +145,29 @@ func (c *Convert) Execute() error {
 		Context: c.kubeContext,
 	}
 
-	if !c.convertOptions.DeleteRelease {
-		clientset, err := clientsetFromFile(c.kubeConfig)
-		if err != nil {
-			return err
-		}
+	clientset, err := clientsetFromFile(c.kubeConfig)
+	if err != nil {
+		return err
+	}
 
-		configmaps, err := c.getV2ReleaseConfigmaps(clientset)
-		if err != nil {
-			return err
-		}
+	configmaps, err := c.getV2ReleaseConfigmaps(clientset)
+	if err != nil {
+		return err
+	}
 
-		if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
-			return err
-		}
+	if len(configmaps.Items) > 0 {
+		if !c.convertOptions.DeleteRelease {
+			if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
+				return err
+			}
 
-		if err := c.preserveV2ReleaseConfigmaps(clientset, configmaps, "converted-to-helm3"); err != nil {
-			return err
-		}
-	} else {
-		if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
-			return err
+			if err := c.preserveV2ReleaseConfigmaps(clientset, configmaps, "converted-to-helm3"); err != nil {
+				return err
+			}
+		} else {
+			if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
+				return err
+			}
 		}
 	}
 
