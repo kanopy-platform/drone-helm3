@@ -43,22 +43,34 @@ func clientsetFromFile(path string) (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(clientConfig)
 }
 
+type ConvertCmd interface {
+	ConvertRelease(convertOptions convertcmd.ConvertOptions, kubeConfig common.KubeConfig) error
+}
+
+type ConvertRelease struct{}
+
+func (cr *ConvertRelease) ConvertRelease(convertOptions convertcmd.ConvertOptions, kubeConfig common.KubeConfig) error {
+	return convertcmd.Convert(convertOptions, kubeConfig)
+}
+
 // Convert holds the parameters to run the Convert action
 type Convert struct {
-	namespace      string
-	debug          action.DebugLog
-	kubeConfig     string
-	kubeContext    string
-	convertOptions convertcmd.ConvertOptions
+	namespace         string
+	debug             action.DebugLog
+	kubeConfig        string
+	kubeContext       string
+	convertOptions    convertcmd.ConvertOptions
+	convertReleaseCmd ConvertCmd
 }
 
 // NewConvert initialize Convert by using values from env.Config
 func NewConvert(cfg env.Config, kubeConfig string, kubeContext string) *Convert {
 
 	convert := &Convert{
-		namespace:   cfg.Namespace,
-		kubeConfig:  kubeConfig,
-		kubeContext: kubeContext,
+		namespace:         cfg.Namespace,
+		kubeConfig:        kubeConfig,
+		kubeContext:       kubeContext,
+		convertReleaseCmd: &ConvertRelease{},
 	}
 
 	if cfg.MaxReleaseVersions == 0 {
@@ -122,6 +134,25 @@ func (c *Convert) preserveV2ReleaseConfigmaps(clientset kubernetes.Interface, co
 	return nil
 }
 
+func (c *Convert) doConvert(configmaps *corev1.ConfigMapList, clientset kubernetes.Interface, kc common.KubeConfig) error {
+	if len(configmaps.Items) > 0 {
+		if !c.convertOptions.DeleteRelease {
+			if err := c.convertReleaseCmd.ConvertRelease(c.convertOptions, kc); err != nil {
+				return err
+			}
+
+			if err := c.preserveV2ReleaseConfigmaps(clientset, configmaps, "converted-to-helm3"); err != nil {
+				return err
+			}
+		} else {
+			if err := c.convertReleaseCmd.ConvertRelease(c.convertOptions, kc); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // Execute runs Convert from 2to3 package
 // If a v2 version doesn't exists then convertcmd.Convert will error
 // If a V3 version exists, we assume that was migrated and the conversion is not run
@@ -155,23 +186,7 @@ func (c *Convert) Execute() error {
 		return err
 	}
 
-	if len(configmaps.Items) > 0 {
-		if !c.convertOptions.DeleteRelease {
-			if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
-				return err
-			}
-
-			if err := c.preserveV2ReleaseConfigmaps(clientset, configmaps, "converted-to-helm3"); err != nil {
-				return err
-			}
-		} else {
-			if err := convertcmd.Convert(c.convertOptions, kc); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
+	return c.doConvert(configmaps, clientset, kc)
 }
 
 // Prepare checks required inputs

@@ -6,6 +6,8 @@ import (
 
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 
+	convertcmd "github.com/helm/helm-2to3/cmd"
+	"github.com/helm/helm-2to3/pkg/common"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chartutil"
 	kubefake "helm.sh/helm/v3/pkg/kube/fake"
@@ -31,6 +33,15 @@ func mockActions(t *testing.T) *action.Configuration {
 	return a
 }
 
+type convertCmdMock struct {
+	Called int
+}
+
+func (c *convertCmdMock) ConvertRelease(convertOptions convertcmd.ConvertOptions, kubeConfig common.KubeConfig) error {
+	c.Called++
+	return nil
+}
+
 func TestV3ReleaseFound(t *testing.T) {
 
 	cfg := mockActions(t)
@@ -44,6 +55,13 @@ func TestV3ReleaseFound(t *testing.T) {
 
 	assert.True(t, v3ReleaseFound("myapp", cfg))
 	assert.False(t, v3ReleaseFound("doesnt_exists", cfg))
+}
+
+func clientsetWithNoV2ConfigmapsMock() *fake.Clientset {
+
+	return fake.NewSimpleClientset(
+		&corev1.ConfigMap{},
+	)
 }
 
 func clientsetWithV2ConfigmapsMock() *fake.Clientset {
@@ -191,4 +209,66 @@ func TestPreserveV2ReleaseConfigmaps(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, cm.Labels["OWNER"], test.ownerLabelValue)
 	}
+}
+
+func TestDoConvertWithV2Release(t *testing.T) {
+	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
+	clientset := clientsetWithV2ConfigmapsMock()
+	c.convertReleaseCmd = &convertCmdMock{}
+
+	cmaps, err := c.getV2ReleaseConfigmaps(clientset)
+
+	assert.NoError(t, err)
+
+	// common.KubeConfig is not used in our moock of the convertCmd
+	err = c.doConvert(cmaps, clientset, common.KubeConfig{})
+	assert.NoError(t, err)
+	// assert configmaps
+
+	tests := []struct {
+		namespace       string
+		configmapName   string
+		ownerLabelValue string
+	}{
+		{
+			namespace:       "example",
+			configmapName:   "myapp.v1",
+			ownerLabelValue: "converted-to-helm3",
+		},
+		{
+			namespace:       "example",
+			configmapName:   "myapp.v2",
+			ownerLabelValue: "converted-to-helm3",
+		},
+		{
+			namespace:       "example",
+			configmapName:   "other.v1",
+			ownerLabelValue: "TILLER",
+		},
+	}
+
+	for _, test := range tests {
+		cm, err := clientset.CoreV1().ConfigMaps(test.namespace).Get(test.configmapName, metav1.GetOptions{})
+		assert.NoError(t, err)
+		assert.Equal(t, cm.Labels["OWNER"], test.ownerLabelValue)
+	}
+}
+
+func TestDoConvertNewRelease(t *testing.T) {
+	c := NewConvert(env.Config{Release: "myapp", TillerNS: "example"}, "", "")
+	clientset := clientsetWithNoV2ConfigmapsMock()
+
+	releaseMock := &convertCmdMock{}
+
+	c.convertReleaseCmd = releaseMock
+
+	cmaps, err := c.getV2ReleaseConfigmaps(clientset)
+	assert.NoError(t, err)
+	assert.Equal(t, len(cmaps.Items), 0)
+
+	// common.KubeConfig is not used in our moock of the convertCmd
+	err = c.doConvert(cmaps, clientset, common.KubeConfig{})
+	assert.NoError(t, err)
+	// assert that convert was not called, since no v2 releases exist
+	assert.Equal(t, releaseMock.Called, 0)
 }
