@@ -269,8 +269,6 @@ func TestDoConvertNewRelease(t *testing.T) {
 	// common.KubeConfig is not used in our moock of the convertCmd
 	err = c.doConvert(cmaps, clientset, common.KubeConfig{})
 	assert.NoError(t, err)
-	// assert that convert was called
-
-	assert.Equal(t, releaseMock.Called, 1)
-
+	// assert that convert was not called, since no v2 releases exist
+	assert.Equal(t, releaseMock.Called, 0)
 }
