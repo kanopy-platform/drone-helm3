@@ -100,7 +100,7 @@ drone-helm3 is largely backward-compatible with drone-helm. There are some known
     * `stable_repo_url`
 * Several settings have been renamed, to clarify their purpose and provide a more consistent naming scheme. For backward-compatibility, the old names are still available as aliases. If the old and new names are both present, the updated form takes priority. Conflicting settings will make your `.drone.yml` harder to understand, so we recommend updating to the new names:
     * `helm_command` is now `mode`
-    ° `helm_repos` is now `add_repos`
+    * `helm_repos` is now `add_repos`
     * `api_server` is now `kube_api_server`
     * `service_account` is now `kube_service_account`
     * `kubernetes_token` is now `kube_token`
