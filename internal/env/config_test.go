@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -218,13 +217,13 @@ func (suite *ConfigTestSuite) TestValuesSecretsWithDebugLogging() {
 	suite.Contains(stderr.String(), `$SECRET_WATER not present in environment, replaced with ""`)
 }
 
-func TestHistoryMax(t *testing.T) {
-	conf := NewTestConfig(t)
-	assert.Equal(t, 10, conf.HistoryMax)
+func (suite *ConfigTestSuite) TestHistoryMax() {
+	conf := NewTestConfig(suite.T())
+	suite.Assert().Equal(10, conf.HistoryMax)
 
-	os.Setenv("PLUGIN_HISTORY_MAX", "0")
-	conf = NewTestConfig(t)
-	assert.Equal(t, 0, conf.HistoryMax)
+	suite.setenv("PLUGIN_HISTORY_MAX", "0")
+	conf = NewTestConfig(suite.T())
+	suite.Assert().Equal(0, conf.HistoryMax)
 }
 
 func (suite *ConfigTestSuite) setenv(key, val string) {
