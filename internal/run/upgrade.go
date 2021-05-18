@@ -2,6 +2,7 @@ package run
 
 import (
 	"fmt"
+
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 )
 
@@ -22,6 +23,7 @@ type Upgrade struct {
 	force         bool
 	atomic        bool
 	cleanupOnFail bool
+	historyMax    int
 	certs         *repoCerts
 
 	cmd cmd
@@ -44,6 +46,7 @@ func NewUpgrade(cfg env.Config) *Upgrade {
 		force:         cfg.Force,
 		atomic:        cfg.AtomicUpgrade,
 		cleanupOnFail: cfg.CleanupOnFail,
+		historyMax:    cfg.HistoryMax,
 		certs:         newRepoCerts(cfg),
 	}
 }
@@ -99,6 +102,9 @@ func (u *Upgrade) Prepare() error {
 		args = append(args, "--values", vFile)
 	}
 	args = append(args, u.certs.flags()...)
+
+	// always set --history-max since it defaults to non-zero value
+	args = append(args, fmt.Sprintf("--history-max=%d", u.historyMax))
 
 	args = append(args, u.release, u.chart)
 	u.cmd = command(helmBin, args...)
