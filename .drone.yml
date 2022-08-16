@@ -5,7 +5,7 @@ name: default
 
 steps:
   - name: test
-    image: golangci/golangci-lint:v1.30.0-alpine
+    image: golangci/golangci-lint:v1.48.0-alpine
     commands:
       - apk update
       - apk add make
@@ -19,7 +19,7 @@ steps:
     commands:
       - snyk monitor
     when:
-      event: 
+      event:
         - push
 
   - name: publish_linux_amd64
