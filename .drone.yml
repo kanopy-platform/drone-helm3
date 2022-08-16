@@ -3,11 +3,40 @@ kind: pipeline
 type: kubernetes
 name: default
 
+trigger:
+  branch:
+    - master
+
+resources:
+  requests:
+    cpu: 400
+    memory: 2GiB
+
 steps:
+  - name: restore
+    image: plugins/s3-cache
+    settings:
+      restore: true
+      endpoint:
+        from_secret: CACHE_S3_ENDPOINT
+      access_key:
+        from_secret: CACHE_S3_ACCESS_KEY
+      secret_key:
+        from_secret: CACHE_S3_SECRET_KEY
+
   - name: test
     image: golangci/golangci-lint:v1.48.0
+    environment:
+      GOCACHE: /drone/src/gocache/
+      GOLANGCI_LINT_CACHE: /drone/src/golangcilintcache/
     commands:
+      - go mod download
       - make test
+    resources:
+      limits:
+        memory: 3GiB
+    depends_on:
+      - restore
 
   - name: snyk
     image: snyk/snyk:golang-1.14
@@ -20,11 +49,38 @@ steps:
       event:
         - push
 
+  - name: rebuild
+    image: plugins/s3-cache
+    settings:
+      rebuild: true
+      endpoint:
+        from_secret: CACHE_S3_ENDPOINT
+      access_key:
+        from_secret: CACHE_S3_ACCESS_KEY
+      secret_key:
+        from_secret: CACHE_S3_SECRET_KEY
+      mount:
+        - gocache/
+        - golangcilintcache/
+    when:
+      event: push
+    depends_on:
+      - test
+
+  - name: build-docker
+    image: plugins/kaniko
+    settings:
+      no_push: true
+    when:
+      event: [pull_request]
+    depends_on:
+      - test
+
   - name: publish_linux_amd64
-    image: plugins/docker
+    image: plugins/kaniko
     settings:
       registry: quay.io
-      repo: quay.io/mongodb/drone-helm
+      repo: mongodb/drone-helm
       username:
         from_secret: docker_username
       password:
@@ -32,16 +88,16 @@ steps:
       tags:
         - git-${DRONE_COMMIT_SHA:0:7}
     when:
-      branch:
-        - master
       event:
         - push
+    depends_on:
+      - test
 
   - name: publish_linux_amd64_tag
-    image: plugins/docker
+    image: plugins/kaniko
     settings:
       registry: quay.io
-      repo: quay.io/mongodb/drone-helm
+      repo: mongodb/drone-helm
       username:
         from_secret: docker_username
       password:
@@ -53,8 +109,11 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - test
+
 ---
 kind: signature
-hmac: 9f0495f1c141f86da001f111287688c3fb04db192695bdbc3957931019c48aba
+hmac: 2278519e208c3d44c12f482ed1e3e9a6840214b04c5909e83e994a1375f03265
 
 ...
