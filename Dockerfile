@@ -12,7 +12,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/drone-helm ./cmd/drone-helm
 
 # --- Copy the cli to an image with helm already installed ---
-FROM alpine/helm:3.5.3
+FROM alpine/helm:3.8.1
 
 LABEL maintainer="MongoDB Infrastructure Team"
 LABEL description="Helm v3 drone plugin with support for automatic migration from v2"
