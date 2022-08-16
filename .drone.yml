@@ -5,10 +5,8 @@ name: default
 
 steps:
   - name: test
-    image: golangci/golangci-lint:v1.48.0-alpine
+    image: golangci/golangci-lint:v1.48.0
     commands:
-      - apk update
-      - apk add make
       - make test
 
   - name: snyk
@@ -57,6 +55,6 @@ steps:
         - tag
 ---
 kind: signature
-hmac: 062dab517eff06bb593ae991438b25a1237b656247e7b0d0f447e6f8e7f262d1
+hmac: 9f0495f1c141f86da001f111287688c3fb04db192695bdbc3957931019c48aba
 
 ...
