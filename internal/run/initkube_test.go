@@ -2,7 +2,6 @@ package run
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -73,7 +72,7 @@ namespace: {{ .Namespace }}
 	err = init.Execute()
 	suite.Require().Nil(err)
 
-	conf, err := ioutil.ReadFile(configFile.Name())
+	conf, err := os.ReadFile(configFile.Name())
 	suite.Require().Nil(err)
 
 	want := `
@@ -99,7 +98,7 @@ func (suite *InitKubeTestSuite) TestExecuteGeneratesConfig() {
 	suite.Require().NoError(init.Prepare())
 	suite.Require().NoError(init.Execute())
 
-	contents, err := ioutil.ReadFile(configFile.Name())
+	contents, err := os.ReadFile(configFile.Name())
 	suite.Require().NoError(err)
 
 	// each setting should be reflected in the generated file
@@ -125,7 +124,7 @@ func (suite *InitKubeTestSuite) TestExecuteGeneratesConfig() {
 
 	suite.Require().NoError(init.Prepare())
 	suite.Require().NoError(init.Execute())
-	contents, err = ioutil.ReadFile(configFile.Name())
+	contents, err = os.ReadFile(configFile.Name())
 	suite.Require().NoError(err)
 	suite.Contains(string(contents), "insecure-skip-tls-verify: true")
 
@@ -254,7 +253,7 @@ func (suite *InitKubeTestSuite) TestDebugOutput() {
 }
 
 func tempfile(name, contents string) (*os.File, error) {
-	file, err := ioutil.TempFile("", name)
+	file, err := os.CreateTemp("", name)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@ package run
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 )
@@ -26,7 +26,7 @@ func newRepoCerts(cfg env.Config) *repoCerts {
 
 func (rc *repoCerts) write() error {
 	if rc.cert != "" {
-		file, err := ioutil.TempFile("", "repo********.cert")
+		file, err := os.CreateTemp("", "repo********.cert")
 		if err != nil {
 			return fmt.Errorf("failed to create certificate file: %w", err)
 		}
@@ -46,7 +46,7 @@ func (rc *repoCerts) write() error {
 	}
 
 	if rc.caCert != "" {
-		file, err := ioutil.TempFile("", "repo********.ca.cert")
+		file, err := os.CreateTemp("", "repo********.ca.cert")
 		if err != nil {
 			return fmt.Errorf("failed to create CA certificate file: %w", err)
 		}

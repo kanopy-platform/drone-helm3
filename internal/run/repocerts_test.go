@@ -2,12 +2,12 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
-	"github.com/stretchr/testify/suite"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/stretchr/testify/suite"
 )
 
 type RepoCertsTestSuite struct {
@@ -43,9 +43,9 @@ func (suite *RepoCertsTestSuite) TestWrite() {
 	suite.NotEqual("", rc.certFilename)
 	suite.NotEqual("", rc.caCertFilename)
 
-	cert, err := ioutil.ReadFile(rc.certFilename)
+	cert, err := os.ReadFile(rc.certFilename)
 	suite.Require().NoError(err)
-	caCert, err := ioutil.ReadFile(rc.caCertFilename)
+	caCert, err := os.ReadFile(rc.caCertFilename)
 	suite.Require().NoError(err)
 	suite.Equal("licensed by the State of Oregon to perform repossessions", string(cert))
 	suite.Equal("Oregon State Licensure board", string(caCert))
