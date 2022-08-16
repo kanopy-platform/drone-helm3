@@ -3,11 +3,35 @@ kind: pipeline
 type: kubernetes
 name: default
 
+trigger:
+  branch:
+    - master
+
 steps:
+  - name: restore
+    image: plugins/s3-cache
+    settings:
+      restore: true
+      endpoint:
+        from_secret: CACHE_S3_ENDPOINT
+      access_key:
+        from_secret: CACHE_S3_ACCESS_KEY
+      secret_key:
+        from_secret: CACHE_S3_SECRET_KEY
+
   - name: test
-    image: golangci/golangci-lint:v1.48.0
+    image: golangci/golangci-lint:v1.47.2
+    environment:
+      GOCACHE: /drone/src/gocache/
+      GOLANGCI_LINT_CACHE: /drone/src/golangcilintcache/
     commands:
+      - go mod download
       - make test
+    resources:
+      limits:
+        memory: 3GiB
+    depends_on:
+      - restore
 
   - name: snyk
     image: snyk/snyk:golang-1.14
@@ -19,6 +43,24 @@ steps:
     when:
       event:
         - push
+
+  - name: rebuild
+    image: plugins/s3-cache
+    settings:
+      rebuild: true
+      endpoint:
+        from_secret: CACHE_S3_ENDPOINT
+      access_key:
+        from_secret: CACHE_S3_ACCESS_KEY
+      secret_key:
+        from_secret: CACHE_S3_SECRET_KEY
+      mount:
+        - gocache/
+        - golangcilintcache/
+    when:
+      event: push
+    depends_on:
+      - test
 
   - name: publish_linux_amd64
     image: plugins/docker
@@ -32,10 +74,10 @@ steps:
       tags:
         - git-${DRONE_COMMIT_SHA:0:7}
     when:
-      branch:
-        - master
       event:
         - push
+    depends_on:
+      - test
 
   - name: publish_linux_amd64_tag
     image: plugins/docker
@@ -53,8 +95,11 @@ steps:
     when:
       event:
         - tag
+    depends_on:
+      - test
+
 ---
 kind: signature
-hmac: 9f0495f1c141f86da001f111287688c3fb04db192695bdbc3957931019c48aba
+hmac: 38e9c1bbe49fb6d51bd751535388b8e86fc29a69e27587cfbe491ff0fe81a702
 
 ...
