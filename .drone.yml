@@ -67,11 +67,20 @@ steps:
     depends_on:
       - test
 
+  - name: build-docker
+    image: plugins/kaniko
+    settings:
+      no_push: true
+    when:
+      event: [pull_request]
+    depends_on:
+      - test
+
   - name: publish_linux_amd64
-    image: plugins/docker
+    image: plugins/kaniko
     settings:
       registry: quay.io
-      repo: quay.io/mongodb/drone-helm
+      repo: mongodb/drone-helm
       username:
         from_secret: docker_username
       password:
@@ -85,10 +94,10 @@ steps:
       - test
 
   - name: publish_linux_amd64_tag
-    image: plugins/docker
+    image: plugins/kaniko
     settings:
       registry: quay.io
-      repo: quay.io/mongodb/drone-helm
+      repo: mongodb/drone-helm
       username:
         from_secret: docker_username
       password:
@@ -105,6 +114,6 @@ steps:
 
 ---
 kind: signature
-hmac: 83c7ec835f8981d3ff475d4d7ebf011968fab5e5fb569f9d0f1c93cde6a90784
+hmac: 2278519e208c3d44c12f482ed1e3e9a6840214b04c5909e83e994a1375f03265
 
 ...
