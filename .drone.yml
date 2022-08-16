@@ -57,6 +57,6 @@ steps:
         - tag
 ---
 kind: signature
-hmac: 2666b1d537359a53e31312237bcfa97093e32a6c2d2901dbdf42aa8d6a5fec2e
+hmac: f48ea034a27872404351c262c66e9406f309b61e79d30beaf75d6fcee6745f18
 
 ...
