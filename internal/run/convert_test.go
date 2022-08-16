@@ -1,9 +1,9 @@
 package run
 
 import (
-	"io/ioutil"
-	"testing"
 	ctx "context"
+	"io"
+	"testing"
 
 	"github.com/mongodb-forks/drone-helm3/internal/env"
 
@@ -25,7 +25,7 @@ import (
 func mockActions(t *testing.T) *action.Configuration {
 	a := &action.Configuration{}
 	a.Releases = storage.Init(driver.NewMemory())
-	a.KubeClient = &kubefake.FailingKubeClient{PrintingKubeClient: kubefake.PrintingKubeClient{Out: ioutil.Discard}}
+	a.KubeClient = &kubefake.FailingKubeClient{PrintingKubeClient: kubefake.PrintingKubeClient{Out: io.Discard}}
 	a.Capabilities = chartutil.DefaultCapabilities
 	a.Log = func(format string, v ...interface{}) {
 		t.Logf(format, v...)
