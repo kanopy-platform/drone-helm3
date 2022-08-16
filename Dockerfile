@@ -1,5 +1,5 @@
 # --- Build the plugin cli first ---
-FROM golang:1.16.2-alpine as builder
+FROM golang:1.18-alpine as builder
 
 ENV GO111MODULE=on
 WORKDIR /app
@@ -13,10 +13,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/drone-helm ./cmd/d
 
 # --- Copy the cli to an image with helm already installed ---
 FROM alpine/helm:3.8.1
-
-LABEL maintainer="MongoDB Infrastructure Team"
-LABEL description="Helm v3 drone plugin with support for automatic migration from v2"
-LABEL base="alpine/helm"
 
 COPY --from=builder /go/bin/drone-helm /bin/drone-helm
 COPY ./assets/kubeconfig.tpl /root/.kube/config.tpl
