@@ -95,7 +95,9 @@ func (p *Plan) Execute() error {
 
 var upgrade = func(cfg env.Config) []Step {
 	var steps []Step
-	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+	if !cfg.SkipKubeconfig {
+		steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+	}
 
 	if !cfg.DisableV2Conversion {
 		// The "helm" context is coming from the template
@@ -121,7 +123,9 @@ var upgrade = func(cfg env.Config) []Step {
 
 var uninstall = func(cfg env.Config) []Step {
 	var steps []Step
-	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+	if !cfg.SkipKubeconfig {
+		steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+	}
 	if cfg.UpdateDependencies {
 		steps = append(steps, run.NewDepUpdate(cfg))
 	}

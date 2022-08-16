@@ -38,7 +38,9 @@ type Config struct {
 	StringValues        string   `split_words:"true"`                 // Argument to pass to --set-string in applicable helm commands
 	ValuesFiles         []string `split_words:"true"`                 // Arguments to pass to --values in applicable helm commands
 	Namespace           string   ``                                   // Kubernetes namespace for all helm commands
+	CreateNamespace     bool     `split_words:"true"`                 // Pass --create-namespace to `helm upgrade`
 	KubeToken           string   `split_words:"true"`                 // Kubernetes authentication token to put in .kube/config
+	SkipKubeconfig      bool     `envconfig:"skip_kubeconfig"`        // Skip kubeconfig creation
 	SkipTLSVerify       bool     `envconfig:"skip_tls_verify"`        // Put insecure-skip-tls-verify in .kube/config
 	Certificate         string   `envconfig:"kube_certificate"`       // The Kubernetes cluster CA's self-signed certificate (must be base64-encoded)
 	APIServer           string   `envconfig:"kube_api_server"`        // The Kubernetes cluster's API endpoint
@@ -56,6 +58,7 @@ type Config struct {
 	AtomicUpgrade       bool     `split_words:"true"`                 // Pass --atomic to `helm upgrade`
 	CleanupOnFail       bool     `envconfig:"cleanup_failed_upgrade"` // Pass --cleanup-on-fail to `helm upgrade`
 	LintStrictly        bool     `split_words:"true"`                 // Pass --strict to `helm lint`
+	SkipCrds            bool     `split_words:"true"`                 // Pass --skip-crds to `helm upgrade`
 	DisableV2Conversion bool     `split_words:"true"`                 // Whether or not to use 2to3 convert to migrate Releases from v2 to v3
 	DeleteV2Releases    bool     `split_words:"true"`                 // Pass --delete-v2-releases option for 2to3 convert command
 	MaxReleaseVersions  int      `split_words:"true"`                 // Pass --release-versions-max option for 2to3 convert command
@@ -99,6 +102,12 @@ func NewConfig(stdout, stderr io.Writer) (*Config, error) {
 
 	if err := envconfig.Process("", &cfg); err != nil {
 		return nil, err
+	}
+
+	if cfg.SkipKubeconfig {
+		if cfg.KubeToken != "" || cfg.Certificate != "" || cfg.APIServer != "" || cfg.ServiceAccount != "" || cfg.SkipTLSVerify {
+			fmt.Fprintf(cfg.Stderr, "Warning: skip_kubeconfig is set. The following kubeconfig-related settings will be ignored: kube_config, kube_certificate, kube_api_server, kube_service_account, skip_tls_verify.")
+		}
 	}
 
 	if justNumbers.MatchString(cfg.Timeout) {

@@ -12,19 +12,21 @@ type Upgrade struct {
 	chart   string
 	release string
 
-	chartVersion  string
-	dryRun        bool
-	wait          bool
-	values        string
-	stringValues  string
-	valuesFiles   []string
-	reuseValues   bool
-	timeout       string
-	force         bool
-	atomic        bool
-	cleanupOnFail bool
-	historyMax    int
-	certs         *repoCerts
+	chartVersion    string
+	dryRun          bool
+	wait            bool
+	values          string
+	stringValues    string
+	valuesFiles     []string
+	reuseValues     bool
+	timeout         string
+	force           bool
+	atomic          bool
+	cleanupOnFail   bool
+	historyMax      int
+	certs           *repoCerts
+	createNamespace bool
+	skipCrds        bool
 
 	cmd cmd
 }
@@ -32,22 +34,24 @@ type Upgrade struct {
 // NewUpgrade creates an Upgrade using fields from the given Config. No validation is performed at this time.
 func NewUpgrade(cfg env.Config) *Upgrade {
 	return &Upgrade{
-		config:        newConfig(cfg),
-		chart:         cfg.Chart,
-		release:       cfg.Release,
-		chartVersion:  cfg.ChartVersion,
-		dryRun:        cfg.DryRun,
-		wait:          cfg.Wait,
-		values:        cfg.Values,
-		stringValues:  cfg.StringValues,
-		valuesFiles:   cfg.ValuesFiles,
-		reuseValues:   cfg.ReuseValues,
-		timeout:       cfg.Timeout,
-		force:         cfg.Force,
-		atomic:        cfg.AtomicUpgrade,
-		cleanupOnFail: cfg.CleanupOnFail,
-		historyMax:    cfg.HistoryMax,
-		certs:         newRepoCerts(cfg),
+		config:          newConfig(cfg),
+		chart:           cfg.Chart,
+		release:         cfg.Release,
+		chartVersion:    cfg.ChartVersion,
+		dryRun:          cfg.DryRun,
+		wait:            cfg.Wait,
+		values:          cfg.Values,
+		stringValues:    cfg.StringValues,
+		valuesFiles:     cfg.ValuesFiles,
+		reuseValues:     cfg.ReuseValues,
+		timeout:         cfg.Timeout,
+		force:           cfg.Force,
+		atomic:          cfg.AtomicUpgrade,
+		cleanupOnFail:   cfg.CleanupOnFail,
+		historyMax:      cfg.HistoryMax,
+		certs:           newRepoCerts(cfg),
+		createNamespace: cfg.CreateNamespace,
+		skipCrds:        cfg.SkipCrds,
 	}
 }
 
@@ -97,6 +101,12 @@ func (u *Upgrade) Prepare() error {
 	}
 	if u.stringValues != "" {
 		args = append(args, "--set-string", u.stringValues)
+	}
+	if u.createNamespace {
+		args = append(args, "--create-namespace")
+	}
+	if u.skipCrds {
+		args = append(args, "--skip-crds")
 	}
 	for _, vFile := range u.valuesFiles {
 		args = append(args, "--values", vFile)
