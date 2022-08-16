@@ -125,7 +125,7 @@ func (suite *PlanTestSuite) TestUpgrade() {
 }
 
 func (suite *PlanTestSuite) TestUpgradeWithSkipKubeconfig() {
-	steps := upgrade(env.Config{SkipKubeconfig: true})
+	steps := upgrade(env.Config{SkipKubeconfig: true, DisableV2Conversion: true})
 	suite.Require().Equal(1, len(steps), "upgrade should return 1 step")
 	suite.IsType(&run.Upgrade{}, steps[0])
 }
