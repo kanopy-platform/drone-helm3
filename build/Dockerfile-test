@@ -6,9 +6,6 @@ WORKDIR $GOPATH/src/github.com/mongodb-forks/drone-helm3
 COPY go.mod go.sum ./
 RUN go mod download
 
-# install make
-RUN apk add make
-
 # build cache
 COPY internal internal
 COPY assets assets
