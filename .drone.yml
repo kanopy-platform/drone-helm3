@@ -81,6 +81,7 @@ steps:
     settings:
       registry: quay.io
       repo: mongodb/drone-helm
+      expand_repo: true
       username:
         from_secret: docker_username
       password:
@@ -98,6 +99,7 @@ steps:
     settings:
       registry: quay.io
       repo: mongodb/drone-helm
+      expand_repo: true
       username:
         from_secret: docker_username
       password:
@@ -114,6 +116,6 @@ steps:
 
 ---
 kind: signature
-hmac: 2278519e208c3d44c12f482ed1e3e9a6840214b04c5909e83e994a1375f03265
+hmac: 636cd0f3fce3658b022d65cd68db783196a38d212fe539e486fea903aea80c97
 
 ...
