@@ -66,6 +66,8 @@ func determineSteps(cfg env.Config) *func(env.Config) []Step {
 		return &convert
 	case "help":
 		return &help
+	case "check-outdated":
+		return &outdated
 	default:
 		switch cfg.DroneEvent {
 		case "push", "tag", "deployment", "pull_request", "promote", "rollback":
@@ -102,6 +104,10 @@ var upgrade = func(cfg env.Config) []Step {
 	if !cfg.DisableV2Conversion {
 		// The "helm" context is coming from the template
 		steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
+	}
+
+	if cfg.CheckOutdated {
+		steps = append(steps, run.NewCheckOutdated(cfg))
 	}
 
 	for _, repo := range cfg.AddRepos {
@@ -156,6 +162,22 @@ var convert = func(cfg env.Config) []Step {
 
 	// The "helm" context is coming from the template
 	steps = append(steps, run.NewConvert(cfg, kubeConfigFile, "helm"))
+
+	return steps
+}
+
+var outdated = func(cfg env.Config) []Step {
+	var steps []Step
+	// TODO Verify if required
+	// if !cfg.SkipKubeconfig {
+	// 	steps = append(steps, run.NewInitKube(cfg, kubeConfigTemplate, kubeConfigFile))
+	// }
+
+	for _, repo := range cfg.AddRepos {
+		steps = append(steps, run.NewAddRepo(cfg, repo))
+	}
+
+	steps = append(steps, run.NewCheckOutdated(cfg))
 
 	return steps
 }
