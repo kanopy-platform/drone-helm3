@@ -172,7 +172,7 @@ func (suite *PlanTestSuite) TestUpgradeWithLint() {
 
 func (suite *PlanTestSuite) TestUpgradeWithoutLint() {
 	steps := upgrade(env.Config{Lint: false})
-	suite.Require().Equal(3, len(steps), "upgrade should return 4 steps")
+	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
 	suite.IsType(&run.InitKube{}, steps[0])
 	suite.IsType(&run.Convert{}, steps[1])
 	suite.IsType(&run.Upgrade{}, steps[2])
