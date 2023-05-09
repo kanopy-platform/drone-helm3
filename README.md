@@ -38,6 +38,7 @@ steps:
     settings:
       mode: upgrade
       chart: ./
+      lint: true
       release: my-project
       # disable_v2_conversion: true
     environment:
@@ -45,6 +46,7 @@ steps:
       KUBE_TOKEN:
         from_secret: kubernetes_token
 ```
+**NOTE:** The `lint` settings field provided in the example above, if omitted is defaulted to `false`.
 
 ### Convert
 
