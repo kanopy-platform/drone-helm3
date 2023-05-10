@@ -38,7 +38,7 @@ steps:
     settings:
       mode: upgrade
       chart: ./
-      lint: true
+      lint: false
       release: my-project
       # disable_v2_conversion: true
     environment:
