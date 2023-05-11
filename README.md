@@ -46,7 +46,6 @@ steps:
       KUBE_TOKEN:
         from_secret: kubernetes_token
 ```
-**Note** that the `lint` settings field show in the example above defaults to `false`.
 
 ### Convert
 
