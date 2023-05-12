@@ -161,23 +161,6 @@ func (suite *PlanTestSuite) TestUpgradeWithoutConvert() {
 	suite.IsType(&run.Upgrade{}, steps[1])
 }
 
-func (suite *PlanTestSuite) TestUpgradeWithLint() {
-	steps := upgrade(env.Config{Lint: true})
-	suite.Require().Equal(4, len(steps), "upgrade should return 4 steps")
-	suite.IsType(&run.InitKube{}, steps[0])
-	suite.IsType(&run.Convert{}, steps[1])
-	suite.IsType(&run.Lint{}, steps[2])
-	suite.IsType(&run.Upgrade{}, steps[3])
-}
-
-func (suite *PlanTestSuite) TestUpgradeWithoutLint() {
-	steps := upgrade(env.Config{Lint: false})
-	suite.Require().Equal(3, len(steps), "upgrade should return 3 steps")
-	suite.IsType(&run.InitKube{}, steps[0])
-	suite.IsType(&run.Convert{}, steps[1])
-	suite.IsType(&run.Upgrade{}, steps[2])
-}
-
 func (suite *PlanTestSuite) TestUninstall() {
 	steps := uninstall(env.Config{})
 	suite.Require().Equal(2, len(steps), "uninstall should return 2 steps")

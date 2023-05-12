@@ -116,10 +116,6 @@ var upgrade = func(cfg env.Config) []Step {
 		steps = append(steps, run.NewDepUpdate(cfg))
 	}
 
-	if cfg.Lint {
-		steps = append(steps, run.NewLint(cfg))
-	}
-
 	steps = append(steps, run.NewUpgrade(cfg))
 
 	return steps
