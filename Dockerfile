@@ -1,20 +1,16 @@
-# --- Build the plugin cli first ---
-FROM golang:1.18-alpine as builder
+FROM golang:1.21 as build
 
-ENV GO111MODULE=on
-WORKDIR /app
-
-COPY go.mod .
-COPY go.sum .
+ARG PLUGIN_TYPE="drone"
+WORKDIR /go/src/app
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/drone-helm ./cmd/drone-helm
+RUN CGO_ENABLED=0 go build -o /go/bin/drone-helm ./cmd/drone-helm
 
 # --- Copy the cli to an image with helm already installed ---
 FROM alpine/helm:3.8.1
 
-COPY --from=builder /go/bin/drone-helm /bin/drone-helm
-COPY ./assets/kubeconfig.tpl /root/.kube/config.tpl
+COPY --from=build /go/bin/drone-helm /bin/
+COPY --chmod=600 ./assets/kubeconfig.tpl /root/.kube/config.tpl
 
 ENTRYPOINT [ "/bin/drone-helm" ]
