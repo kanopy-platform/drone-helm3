@@ -1,6 +1,5 @@
 FROM golang:1.21 as build
 
-ARG PLUGIN_TYPE="drone"
 WORKDIR /go/src/app
 COPY go.mod go.sum ./
 RUN go mod download
