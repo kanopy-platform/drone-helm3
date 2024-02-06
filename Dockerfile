@@ -8,7 +8,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o /go/bin/drone-helm ./cmd/drone-helm
 
 # --- Copy the cli to an image with helm already installed ---
-FROM alpine/helm:3.8.1
+FROM alpine/helm:3.13.3
 
 COPY --from=build /go/bin/drone-helm /bin/
 COPY --chmod=600 ./assets/kubeconfig.tpl /root/.kube/config.tpl
