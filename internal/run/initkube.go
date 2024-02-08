@@ -87,7 +87,7 @@ func (i *InitKube) Prepare() error {
 		fmt.Fprintf(i.stderr, "kubeconfig file at %s\n", i.configFilename)
 	}
 
-	i.configFile, err = os.Create(i.configFilename)
+	i.configFile, err = os.OpenFile(i.configFilename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return fmt.Errorf("could not open kubeconfig file for writing: %w", err)
 	}
