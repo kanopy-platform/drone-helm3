@@ -25,7 +25,7 @@ steps:
         from_secret: CACHE_S3_SECRET_KEY
 
   - name: test
-    image: golangci/golangci-lint:v1.48.0
+    image: golangci/golangci-lint:v1.56.0
     environment:
       GOCACHE: /drone/src/gocache/
       GOLANGCI_LINT_CACHE: /drone/src/golangcilintcache/
@@ -39,7 +39,7 @@ steps:
       - restore
 
   - name: snyk
-    image: snyk/snyk:golang-1.14
+    image: snyk/snyk:golang-1.21
     environment:
       SNYK_TOKEN:
         from_secret: snyk_token
@@ -116,6 +116,6 @@ steps:
 
 ---
 kind: signature
-hmac: 636cd0f3fce3658b022d65cd68db783196a38d212fe539e486fea903aea80c97
+hmac: f4dbe8e8a3a36d5468cef7c9e391a89fcbb7cc231d34737ee32ff6496cf0e9a3
 
 ...
