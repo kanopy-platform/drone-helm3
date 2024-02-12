@@ -23,6 +23,9 @@ steps:
         from_secret: CACHE_S3_ACCESS_KEY
       secret_key:
         from_secret: CACHE_S3_SECRET_KEY
+    when:
+      event:
+        - push
 
   - name: test
     image: golangci/golangci-lint:v1.56.0
@@ -37,6 +40,9 @@ steps:
         memory: 3GiB
     depends_on:
       - restore
+    when:
+      event:
+        - push
 
   - name: snyk
     image: snyk/snyk:golang-1.21
@@ -63,7 +69,8 @@ steps:
         - gocache/
         - golangcilintcache/
     when:
-      event: push
+      event: 
+        - push
     depends_on:
       - test
 
