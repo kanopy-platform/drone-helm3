@@ -4,8 +4,8 @@ type: kubernetes
 name: test
 
 trigger:
-  event:
-    - push
+  branch:
+    - master
 
 resources:
   requests:
@@ -13,17 +13,6 @@ resources:
     memory: 2GiB
 
 steps:
-  - name: restore
-    image: plugins/s3-cache
-    settings:
-      restore: true
-      endpoint:
-        from_secret: CACHE_S3_ENDPOINT
-      access_key:
-        from_secret: CACHE_S3_ACCESS_KEY
-      secret_key:
-        from_secret: CACHE_S3_SECRET_KEY
-
   - name: test
     image: golangci/golangci-lint:v1.56.0
     environment:
@@ -35,8 +24,9 @@ steps:
     resources:
       limits:
         memory: 3GiB
-    depends_on:
-      - restore
+    when:
+      event:
+        - pull_request
 
   - name: snyk
     image: snyk/snyk:golang-1.21
@@ -45,20 +35,9 @@ steps:
         from_secret: snyk_token
     commands:
       - snyk monitor
-
-  - name: rebuild
-    image: plugins/s3-cache
-    settings:
-      rebuild: true
-      endpoint:
-        from_secret: CACHE_S3_ENDPOINT
-      access_key:
-        from_secret: CACHE_S3_ACCESS_KEY
-      secret_key:
-        from_secret: CACHE_S3_SECRET_KEY
-      mount:
-        - gocache/
-        - golangcilintcache/
+    when:
+      event:
+        - pull_request
     depends_on:
       - test
 
