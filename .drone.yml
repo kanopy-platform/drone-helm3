@@ -28,21 +28,8 @@ steps:
       event:
         - pull_request
 
-  - name: snyk
-    image: snyk/snyk:golang-1.21
-    environment:
-      SNYK_TOKEN:
-        from_secret: snyk_token
-    commands:
-      - snyk monitor
-    when:
-      event:
-        - pull_request
-    depends_on:
-      - test
-
 ---
 kind: signature
-hmac: c8b018c7a584bdeb41debac019f2cf7687c20264e21dc75a351f9a8de3ccaafe
+hmac: 9b68b1fafcef4cc688232b0f78dddb07b4a84edb33d0f81a9534dfb0af8cf81d
 
 ...
