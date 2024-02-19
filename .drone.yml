@@ -15,9 +15,6 @@ resources:
 steps:
   - name: test
     image: golangci/golangci-lint:v1.56.0
-    environment:
-      GOCACHE: /drone/src/gocache/
-      GOLANGCI_LINT_CACHE: /drone/src/golangcilintcache/
     commands:
       - go mod download
       - make test
