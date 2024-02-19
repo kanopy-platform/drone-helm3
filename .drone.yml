@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: kubernetes
-name: default
+name: test
 
 trigger:
   branch:
@@ -13,109 +13,20 @@ resources:
     memory: 2GiB
 
 steps:
-  - name: restore
-    image: plugins/s3-cache
-    settings:
-      restore: true
-      endpoint:
-        from_secret: CACHE_S3_ENDPOINT
-      access_key:
-        from_secret: CACHE_S3_ACCESS_KEY
-      secret_key:
-        from_secret: CACHE_S3_SECRET_KEY
-
   - name: test
     image: golangci/golangci-lint:v1.56.0
-    environment:
-      GOCACHE: /drone/src/gocache/
-      GOLANGCI_LINT_CACHE: /drone/src/golangcilintcache/
     commands:
       - go mod download
       - make test
     resources:
       limits:
         memory: 3GiB
-    depends_on:
-      - restore
-
-  - name: snyk
-    image: snyk/snyk:golang-1.21
-    environment:
-      SNYK_TOKEN:
-        from_secret: snyk_token
-    commands:
-      - snyk monitor
     when:
       event:
-        - push
-
-  - name: rebuild
-    image: plugins/s3-cache
-    settings:
-      rebuild: true
-      endpoint:
-        from_secret: CACHE_S3_ENDPOINT
-      access_key:
-        from_secret: CACHE_S3_ACCESS_KEY
-      secret_key:
-        from_secret: CACHE_S3_SECRET_KEY
-      mount:
-        - gocache/
-        - golangcilintcache/
-    when:
-      event: push
-    depends_on:
-      - test
-
-  - name: build-docker
-    image: plugins/kaniko
-    settings:
-      no_push: true
-    when:
-      event: [pull_request]
-    depends_on:
-      - test
-
-  - name: publish_linux_amd64
-    image: plugins/kaniko
-    settings:
-      registry: quay.io
-      repo: mongodb/drone-helm
-      expand_repo: true
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      tags:
-        - git-${DRONE_COMMIT_SHA:0:7}
-    when:
-      event:
-        - push
-    depends_on:
-      - test
-
-  - name: publish_linux_amd64_tag
-    image: plugins/kaniko
-    settings:
-      registry: quay.io
-      repo: mongodb/drone-helm
-      expand_repo: true
-      username:
-        from_secret: docker_username
-      password:
-        from_secret: docker_password
-      tags:
-        - git-${DRONE_COMMIT_SHA:0:7}
-        - ${DRONE_TAG}
-        - v3
-    when:
-      event:
-        - tag
-    depends_on:
-      - test
+        - pull_request
 
 ---
 kind: signature
-hmac: f4dbe8e8a3a36d5468cef7c9e391a89fcbb7cc231d34737ee32ff6496cf0e9a3
+hmac: b95b8c672851b1694ca0a55391d91858eebab2e038f179f060852d3ae5d7a146
 
 ...
