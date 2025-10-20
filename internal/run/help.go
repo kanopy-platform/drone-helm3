@@ -42,6 +42,7 @@ func (h *Help) Prepare() error {
 	h.cmd.Stderr(h.stderr)
 
 	if h.debug {
+		//nolint:errcheck
 		fmt.Fprintf(h.stderr, "Generated command: '%s'\n", h.cmd.String())
 	}
 

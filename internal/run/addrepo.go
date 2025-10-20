@@ -55,6 +55,7 @@ func (a *AddRepo) Prepare() error {
 	a.cmd.Stderr(a.stderr)
 
 	if a.debug {
+		//nolint:errcheck
 		fmt.Fprintf(a.stderr, "Generated command: '%s'\n", a.cmd.String())
 	}
 

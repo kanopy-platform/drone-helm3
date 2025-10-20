@@ -128,7 +128,7 @@ func (c *Convert) preserveV2ReleaseConfigmaps(clientset kubernetes.Interface, co
 		item.Labels["OWNER"] = ownerLabelValue
 
 		if _, err := clientset.CoreV1().ConfigMaps(tillerNamespace).Update(ctx.Background(), &item, metav1.UpdateOptions{}); err != nil {
-			return fmt.Errorf("Failure preserving release version %s", item.Name)
+			return fmt.Errorf("failure preserving release version %s", item.Name)
 		}
 	}
 

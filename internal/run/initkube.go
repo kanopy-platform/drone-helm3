@@ -48,9 +48,15 @@ func NewInitKube(cfg env.Config, templateFile, configFile string) *InitKube {
 // Execute generates a kubernetes config file from drone-helm3's template.
 func (i *InitKube) Execute() error {
 	if i.debug {
+		//nolint:errcheck
 		fmt.Fprintf(i.stderr, "writing kubeconfig file to %s\n", i.configFilename)
 	}
-	defer i.configFile.Close()
+	defer func() {
+		if err := i.configFile.Close(); err != nil {
+			//nolint:errcheck
+			fmt.Fprintf(i.stderr, "warning: failed to close kubeconfig file: %v\n", err)
+		}
+	}()
 	return i.template.Execute(i.configFile, i.values)
 }
 
@@ -70,6 +76,7 @@ func (i *InitKube) Prepare() error {
 	}
 
 	if i.debug {
+		//nolint:errcheck
 		fmt.Fprintf(i.stderr, "loading kubeconfig template from %s\n", i.templateFilename)
 	}
 	i.template, err = template.ParseFiles(i.templateFilename)
@@ -79,11 +86,13 @@ func (i *InitKube) Prepare() error {
 
 	if i.debug {
 		if _, err := os.Stat(i.configFilename); err != nil {
-			// non-nil err here isn't an actual error state; the kubeconfig just doesn't exist
+			//nolint:errcheck
 			fmt.Fprint(i.stderr, "creating ")
 		} else {
+			//nolint:errcheck
 			fmt.Fprint(i.stderr, "truncating ")
 		}
+		//nolint:errcheck
 		fmt.Fprintf(i.stderr, "kubeconfig file at %s\n", i.configFilename)
 	}
 

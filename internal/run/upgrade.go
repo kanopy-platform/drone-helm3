@@ -122,6 +122,7 @@ func (u *Upgrade) Prepare() error {
 	u.cmd.Stderr(u.stderr)
 
 	if u.debug {
+		//nolint:errcheck
 		fmt.Fprintf(u.stderr, "Generated command: '%s'\n", u.cmd.String())
 	}
 

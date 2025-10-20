@@ -82,6 +82,7 @@ func determineSteps(cfg env.Config) *func(env.Config) []Step {
 func (p *Plan) Execute() error {
 	for i, step := range p.steps {
 		if p.cfg.Debug {
+			//nolint:errcheck
 			fmt.Fprintf(p.cfg.Stderr, "calling %T.Execute (step %d)\n", step, i)
 		}
 

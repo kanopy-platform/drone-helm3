@@ -39,6 +39,7 @@ func (d *DepUpdate) Prepare() error {
 	d.cmd.Stderr(d.stderr)
 
 	if d.debug {
+		//nolint:errcheck
 		fmt.Fprintf(d.stderr, "Generated command: '%s'\n", d.cmd.String())
 	}
 

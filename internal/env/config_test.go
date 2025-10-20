@@ -233,7 +233,7 @@ func (suite *ConfigTestSuite) setenv(key, val string) {
 	} else {
 		suite.envBackup[key] = nil
 	}
-	os.Setenv(key, val)
+	suite.Require().NoError(os.Setenv(key, val), "failed to set environment variable %s", key)
 }
 
 func (suite *ConfigTestSuite) unsetenv(key string) {
@@ -243,7 +243,7 @@ func (suite *ConfigTestSuite) unsetenv(key string) {
 	} else {
 		suite.envBackup[key] = nil
 	}
-	os.Unsetenv(key)
+	suite.Require().NoError(os.Unsetenv(key), "failed to unset environment variable %s", key)
 }
 
 func (suite *ConfigTestSuite) BeforeTest(_, _ string) {
@@ -253,9 +253,9 @@ func (suite *ConfigTestSuite) BeforeTest(_, _ string) {
 func (suite *ConfigTestSuite) AfterTest(_, _ string) {
 	for key, val := range suite.envBackup {
 		if val == nil {
-			os.Unsetenv(key)
+			suite.Assert().NoError(os.Unsetenv(key), "failed to restore environment variable %s", key)
 		} else {
-			os.Setenv(key, *val)
+			suite.Assert().NoError(os.Setenv(key, *val), "failed to restore environment variable %s", key)
 		}
 	}
 }
