@@ -3,7 +3,7 @@ package run
 import (
 	"fmt"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 // Upgrade is an execution step that calls `helm upgrade` when executed.

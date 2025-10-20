@@ -5,7 +5,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 
 	convertcmd "github.com/helm/helm-2to3/cmd"
 	"github.com/helm/helm-2to3/pkg/common"

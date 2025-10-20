@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 type repoCerts struct {

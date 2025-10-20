@@ -7,7 +7,7 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 	"github.com/stretchr/testify/suite"
 	yaml "gopkg.in/yaml.v2"
 )

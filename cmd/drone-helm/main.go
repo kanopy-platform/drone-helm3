@@ -5,8 +5,8 @@ import (
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
-	"github.com/mongodb-forks/drone-helm3/internal/helm"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/helm"
 )
 
 func main() {

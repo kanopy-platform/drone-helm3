@@ -1,4 +1,4 @@
-module github.com/mongodb-forks/drone-helm3
+module github.com/kanopy-platform/drone-helm3
 
 go 1.21
 

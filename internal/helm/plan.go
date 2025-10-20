@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
-	"github.com/mongodb-forks/drone-helm3/internal/run"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/run"
 )
 
 const (
