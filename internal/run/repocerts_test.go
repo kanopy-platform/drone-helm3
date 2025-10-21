@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -38,8 +38,16 @@ func (suite *RepoCertsTestSuite) TestWrite() {
 	suite.Require().NotNil(rc)
 
 	suite.NoError(rc.write())
-	defer os.Remove(rc.certFilename)
-	defer os.Remove(rc.caCertFilename)
+	defer func() {
+		if err := os.Remove(rc.certFilename); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", rc.certFilename, err)
+		}
+	}()
+	defer func() {
+		if err := os.Remove(rc.caCertFilename); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", rc.caCertFilename, err)
+		}
+	}()
 	suite.NotEqual("", rc.certFilename)
 	suite.NotEqual("", rc.caCertFilename)
 
@@ -72,8 +80,16 @@ func (suite *RepoCertsTestSuite) TestDebug() {
 	suite.Require().NotNil(rc)
 
 	suite.NoError(rc.write())
-	defer os.Remove(rc.certFilename)
-	defer os.Remove(rc.caCertFilename)
+	defer func() {
+		if err := os.Remove(rc.certFilename); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", rc.certFilename, err)
+		}
+	}()
+	defer func() {
+		if err := os.Remove(rc.caCertFilename); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", rc.caCertFilename, err)
+		}
+	}()
 
 	suite.Contains(stderr.String(), fmt.Sprintf("writing repo certificate to %s", rc.certFilename))
 	suite.Contains(stderr.String(), fmt.Sprintf("writing repo ca certificate to %s", rc.caCertFilename))

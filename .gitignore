@@ -18,3 +18,4 @@
 # vendor/
 .env
 .secrets
+drone-helm

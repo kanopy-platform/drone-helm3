@@ -3,7 +3,7 @@ package run
 import (
   "errors"
   "fmt"
-  "github.com/mongodb-forks/drone-helm3/internal/env"
+  "github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 const (
@@ -52,6 +52,7 @@ func (d *DepAction) Prepare() error {
   d.cmd.Stderr(d.stderr)
 
   if d.debug {
+    //nolint:errcheck
     fmt.Fprintf(d.stderr, "Generated command: '%s'\n", d.cmd.String())
   }
 

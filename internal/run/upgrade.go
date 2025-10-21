@@ -3,7 +3,7 @@ package run
 import (
 	"fmt"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 // Upgrade is an execution step that calls `helm upgrade` when executed.
@@ -122,6 +122,7 @@ func (u *Upgrade) Prepare() error {
 	u.cmd.Stderr(u.stderr)
 
 	if u.debug {
+		//nolint:errcheck
 		fmt.Fprintf(u.stderr, "Generated command: '%s'\n", u.cmd.String())
 	}
 

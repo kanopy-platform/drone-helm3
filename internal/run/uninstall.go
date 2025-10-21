@@ -2,7 +2,7 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 // Uninstall is an execution step that calls `helm uninstall` when executed.
@@ -52,6 +52,7 @@ func (u *Uninstall) Prepare() error {
 	u.cmd.Stderr(u.stderr)
 
 	if u.debug {
+		//nolint:errcheck
 		fmt.Fprintf(u.stderr, "Generated command: '%s'\n", u.cmd.String())
 	}
 

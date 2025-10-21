@@ -2,7 +2,7 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 // DepUpdate is an execution step that calls `helm dependency update` when executed.
@@ -39,6 +39,7 @@ func (d *DepUpdate) Prepare() error {
 	d.cmd.Stderr(d.stderr)
 
 	if d.debug {
+		//nolint:errcheck
 		fmt.Fprintf(d.stderr, "Generated command: '%s'\n", d.cmd.String())
 	}
 

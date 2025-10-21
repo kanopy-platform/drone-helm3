@@ -7,7 +7,7 @@ import (
 
 	convertcmd "github.com/helm/helm-2to3/cmd"
 	"github.com/helm/helm-2to3/pkg/common"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/cli"
@@ -128,7 +128,7 @@ func (c *Convert) preserveV2ReleaseConfigmaps(clientset kubernetes.Interface, co
 		item.Labels["OWNER"] = ownerLabelValue
 
 		if _, err := clientset.CoreV1().ConfigMaps(tillerNamespace).Update(ctx.Background(), &item, metav1.UpdateOptions{}); err != nil {
-			return fmt.Errorf("Failure preserving release version %s", item.Name)
+			return fmt.Errorf("failure preserving release version %s", item.Name)
 		}
 	}
 

@@ -1,4 +1,4 @@
-FROM golang:1.21 as build
+FROM golang:1.25 as build
 
 WORKDIR /go/src/app
 COPY go.mod go.sum ./
@@ -7,7 +7,7 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o /go/bin/app ./cmd/drone-helm
 
 # --- Copy the cli to an image with helm already installed ---
-FROM alpine/helm:3.8.1
+FROM alpine/helm:3.18.6
 
 COPY --chmod=600 ./assets/kubeconfig.tpl /root/.kube/config.tpl
 COPY --from=build /go/bin/app /

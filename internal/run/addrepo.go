@@ -2,7 +2,7 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 	"strings"
 )
 
@@ -55,6 +55,7 @@ func (a *AddRepo) Prepare() error {
 	a.cmd.Stderr(a.stderr)
 
 	if a.debug {
+		//nolint:errcheck
 		fmt.Fprintf(a.stderr, "Generated command: '%s'\n", a.cmd.String())
 	}
 

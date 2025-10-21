@@ -7,7 +7,7 @@ import (
 	"testing"
 	"text/template"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 	"github.com/stretchr/testify/suite"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -49,11 +49,19 @@ func (suite *InitKubeTestSuite) TestPrepareExecute() {
 certificate: {{ .Certificate }}
 namespace: {{ .Namespace }}
 `)
-	defer os.Remove(templateFile.Name())
+	defer func() {
+		if err := os.Remove(templateFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", templateFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	configFile, err := tempfile("kubeconfig********.yml", "")
-	defer os.Remove(configFile.Name())
+	defer func() {
+		if err := os.Remove(configFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", configFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	cfg := env.Config{
@@ -84,7 +92,11 @@ namespace: Cisco
 
 func (suite *InitKubeTestSuite) TestExecuteGeneratesConfig() {
 	configFile, err := tempfile("kubeconfig********.yml", "")
-	defer os.Remove(configFile.Name())
+	defer func() {
+		if err := os.Remove(configFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", configFile.Name(), err)
+		}
+	}()
 	suite.Require().NoError(err)
 
 	cfg := env.Config{
@@ -134,7 +146,11 @@ func (suite *InitKubeTestSuite) TestExecuteGeneratesConfig() {
 
 func (suite *InitKubeTestSuite) TestPrepareParseError() {
 	templateFile, err := tempfile("kubeconfig********.yml.tpl", `{{ NonexistentFunction }}`)
-	defer os.Remove(templateFile.Name())
+	defer func() {
+		if err := os.Remove(templateFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", templateFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	cfg := env.Config{
@@ -162,7 +178,11 @@ func (suite *InitKubeTestSuite) TestPrepareNonexistentTemplateFile() {
 
 func (suite *InitKubeTestSuite) TestPrepareCannotOpenDestinationFile() {
 	templateFile, err := tempfile("kubeconfig********.yml.tpl", "hurgity burgity")
-	defer os.Remove(templateFile.Name())
+	defer func() {
+		if err := os.Remove(templateFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", templateFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 	cfg := env.Config{
 		APIServer:   "Sysadmin",
@@ -178,11 +198,19 @@ func (suite *InitKubeTestSuite) TestPrepareCannotOpenDestinationFile() {
 
 func (suite *InitKubeTestSuite) TestPrepareRequiredConfig() {
 	templateFile, err := tempfile("kubeconfig********.yml.tpl", "hurgity burgity")
-	defer os.Remove(templateFile.Name())
+	defer func() {
+		if err := os.Remove(templateFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", templateFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	configFile, err := tempfile("kubeconfig********.yml", "")
-	defer os.Remove(configFile.Name())
+	defer func() {
+		if err := os.Remove(configFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", configFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	// initial config with all required fields present
@@ -205,11 +233,19 @@ func (suite *InitKubeTestSuite) TestPrepareRequiredConfig() {
 
 func (suite *InitKubeTestSuite) TestPrepareDefaultsServiceAccount() {
 	templateFile, err := tempfile("kubeconfig********.yml.tpl", "hurgity burgity")
-	defer os.Remove(templateFile.Name())
+	defer func() {
+		if err := os.Remove(templateFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", templateFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	configFile, err := tempfile("kubeconfig********.yml", "")
-	defer os.Remove(configFile.Name())
+	defer func() {
+		if err := os.Remove(configFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", configFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	cfg := env.Config{
@@ -226,11 +262,19 @@ func (suite *InitKubeTestSuite) TestPrepareDefaultsServiceAccount() {
 
 func (suite *InitKubeTestSuite) TestDebugOutput() {
 	templateFile, err := tempfile("kubeconfig********.yml.tpl", "hurgity burgity")
-	defer os.Remove(templateFile.Name())
+	defer func() {
+		if err := os.Remove(templateFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", templateFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	configFile, err := tempfile("kubeconfig********.yml", "")
-	defer os.Remove(configFile.Name())
+	defer func() {
+		if err := os.Remove(configFile.Name()); err != nil {
+			suite.T().Logf("warning: failed to remove temp file %s: %v", configFile.Name(), err)
+		}
+	}()
 	suite.Require().Nil(err)
 
 	stdout := &strings.Builder{}

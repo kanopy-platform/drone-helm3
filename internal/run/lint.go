@@ -2,7 +2,7 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 // Lint is an execution step that calls `helm lint` when executed.
@@ -62,6 +62,7 @@ func (l *Lint) Prepare() error {
 	l.cmd.Stderr(l.stderr)
 
 	if l.debug {
+		//nolint:errcheck
 		fmt.Fprintf(l.stderr, "Generated command: '%s'\n", l.cmd.String())
 	}
 

@@ -2,7 +2,7 @@ package run
 
 import (
 	"fmt"
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 // Help is a step in a helm Plan that calls `helm help`.
@@ -42,6 +42,7 @@ func (h *Help) Prepare() error {
 	h.cmd.Stderr(h.stderr)
 
 	if h.debug {
+		//nolint:errcheck
 		fmt.Fprintf(h.stderr, "Generated command: '%s'\n", h.cmd.String())
 	}
 

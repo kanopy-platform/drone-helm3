@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
-	"github.com/mongodb-forks/drone-helm3/internal/run"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/run"
 )
 
 const (
@@ -82,6 +82,7 @@ func determineSteps(cfg env.Config) *func(env.Config) []Step {
 func (p *Plan) Execute() error {
 	for i, step := range p.steps {
 		if p.cfg.Debug {
+			//nolint:errcheck
 			fmt.Fprintf(p.cfg.Stderr, "calling %T.Execute (step %d)\n", step, i)
 		}
 

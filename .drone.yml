@@ -14,7 +14,7 @@ resources:
 
 steps:
   - name: test
-    image: golangci/golangci-lint:v1.56.0
+    image: golangci/golangci-lint:v2.5.0
     commands:
       - go mod download
       - make test
@@ -27,6 +27,6 @@ steps:
 
 ---
 kind: signature
-hmac: b95b8c672851b1694ca0a55391d91858eebab2e038f179f060852d3ae5d7a146
+hmac: f764b029a88efb188e871fb9a2f5a3534109d3e575b416c9ee070e79571da0fc
 
 ...

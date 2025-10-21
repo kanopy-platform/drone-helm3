@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mongodb-forks/drone-helm3/internal/env"
+	"github.com/kanopy-platform/drone-helm3/internal/env"
 )
 
 type repoCerts struct {
@@ -30,7 +30,12 @@ func (rc *repoCerts) write() error {
 		if err != nil {
 			return fmt.Errorf("failed to create certificate file: %w", err)
 		}
-		defer file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				//nolint:errcheck
+				fmt.Fprintf(rc.stderr, "warning: failed to close certificate file: %v\n", err)
+			}
+		}()
 
 		rc.certFilename = file.Name()
 		rawCert, err := base64.StdEncoding.DecodeString(rc.cert)
@@ -38,6 +43,7 @@ func (rc *repoCerts) write() error {
 			return fmt.Errorf("failed to base64-decode certificate string: %w", err)
 		}
 		if rc.debug {
+			//nolint:errcheck
 			fmt.Fprintf(rc.stderr, "writing repo certificate to %s\n", rc.certFilename)
 		}
 		if _, err := file.Write(rawCert); err != nil {
@@ -50,7 +56,12 @@ func (rc *repoCerts) write() error {
 		if err != nil {
 			return fmt.Errorf("failed to create CA certificate file: %w", err)
 		}
-		defer file.Close()
+		defer func() {
+			if err := file.Close(); err != nil {
+				//nolint:errcheck
+				fmt.Fprintf(rc.stderr, "warning: failed to close CA certificate file: %v\n", err)
+			}
+		}()
 
 		rc.caCertFilename = file.Name()
 		rawCert, err := base64.StdEncoding.DecodeString(rc.caCert)
@@ -58,6 +69,7 @@ func (rc *repoCerts) write() error {
 			return fmt.Errorf("failed to base64-decode CA certificate string: %w", err)
 		}
 		if rc.debug {
+			//nolint:errcheck
 			fmt.Fprintf(rc.stderr, "writing repo ca certificate to %s\n", rc.caCertFilename)
 		}
 		if _, err := file.Write(rawCert); err != nil {

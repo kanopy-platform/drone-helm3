@@ -106,6 +106,7 @@ func NewConfig(stdout, stderr io.Writer) (*Config, error) {
 
 	if cfg.SkipKubeconfig {
 		if cfg.KubeToken != "" || cfg.Certificate != "" || cfg.APIServer != "" || cfg.ServiceAccount != "" || cfg.SkipTLSVerify {
+			//nolint:errcheck
 			fmt.Fprintf(cfg.Stderr, "Warning: skip_kubeconfig is set. The following kubeconfig-related settings will be ignored: kube_config, kube_certificate, kube_api_server, kube_service_account, skip_tls_verify.")
 		}
 	}
@@ -142,6 +143,7 @@ func (cfg *Config) loadValuesSecrets() {
 		}
 
 		if cfg.Debug {
+			//nolint:errcheck
 			fmt.Fprintf(cfg.Stderr, "$%s not present in environment, replaced with \"\"\n", varName)
 		}
 		return ""
@@ -159,6 +161,7 @@ func (cfg Config) logDebug() {
 	if cfg.KubeToken != "" {
 		cfg.KubeToken = "(redacted)"
 	}
+	//nolint:errcheck
 	fmt.Fprintf(cfg.Stderr, "Generated config: %+v\n", cfg)
 }
 
@@ -167,6 +170,7 @@ func (cfg *Config) varsMessage(vars []string, format string) {
 		_, barePresent := os.LookupEnv(varname)
 		_, prefixedPresent := os.LookupEnv("PLUGIN_" + varname)
 		if barePresent || prefixedPresent {
+			//nolint:errcheck
 			fmt.Fprintf(cfg.Stderr, format, strings.ToLower(varname))
 		}
 	}
